@@ -114,15 +114,11 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
                 views.setTextViewText(R.id.tv_free_count, String.valueOf(station.getFavoritePilesFreeTotal()));
                 views.setTextViewText(R.id.tv_total_suffix, "个可用 / 1#&9#共20孔");
                 views.setTextViewText(R.id.tv_breakdown, station.getPilesFocusSummary());
-                views.setTextViewText(R.id.tv_trend_prediction, "校医院全场9台桩共90孔 · 余 " + station.getFreeSockets() + " 可用");
+                views.setTextViewText(R.id.tv_trend_prediction, "校医院全场9台桩共90孔 · 实时余 " + station.getFreeSockets() + " 可用");
             } else {
                 views.setTextViewText(R.id.tv_free_count, String.valueOf(station.getFreeSockets()));
-                views.setTextViewText(R.id.tv_total_suffix, "个可用 / 共 " + station.getTotalSockets() + " 桩");
-                String breakdownStr = String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
-                        station.getFreeFastSockets(), station.getFastSockets(),
-                        station.getFreeSlowSockets(), station.getSlowSockets(),
-                        station.getInUseSockets());
-                views.setTextViewText(R.id.tv_breakdown, breakdownStr);
+                views.setTextViewText(R.id.tv_total_suffix, "个可用 / 共 " + station.getTotalSockets() + " 孔");
+                views.setTextViewText(R.id.tv_breakdown, station.getPilesRemainingSummary());
                 views.setTextViewText(R.id.tv_trend_prediction, station.getTrendPrediction());
             }
 

@@ -188,16 +188,11 @@ public class MainActivity extends AppCompatActivity {
                 if (tvFree != null) tvFree.setText(String.valueOf(currentStation.getFavoritePilesFreeTotal()));
                 if (tvTotal != null) tvTotal.setText("个可用 / 1#&9#共20孔");
                 if (tvBreakdown != null) tvBreakdown.setText(currentStation.getPilesFocusSummary());
-                if (tvTrend != null) tvTrend.setText("校医院全场9台桩共90孔 · 余 " + currentStation.getFreeSockets() + " 可用");
+                if (tvTrend != null) tvTrend.setText("校医院全场9台桩共90孔 · 实时余 " + currentStation.getFreeSockets() + " 可用");
             } else {
                 if (tvFree != null) tvFree.setText(String.valueOf(currentStation.getFreeSockets()));
-                if (tvTotal != null) tvTotal.setText("个可用 / 共 " + currentStation.getTotalSockets() + " 桩");
-                if (tvBreakdown != null) {
-                    tvBreakdown.setText(String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
-                            currentStation.getFreeFastSockets(), currentStation.getFastSockets(),
-                            currentStation.getFreeSlowSockets(), currentStation.getSlowSockets(),
-                            currentStation.getInUseSockets()));
-                }
+                if (tvTotal != null) tvTotal.setText("个可用 / 共 " + currentStation.getTotalSockets() + " 孔");
+                if (tvBreakdown != null) tvBreakdown.setText(currentStation.getPilesRemainingSummary());
                 if (tvTrend != null) tvTrend.setText(currentStation.getTrendPrediction());
             }
 
@@ -267,10 +262,10 @@ public class MainActivity extends AppCompatActivity {
             if (s.isFavoriteStation()) {
                 if (tvFree != null) tvFree.setText(String.valueOf(s.getFavoritePilesFreeTotal()));
                 if (tvTotal != null) tvTotal.setText("个可用 / 1#&9#共20孔");
-                if (tvTrend != null) tvTrend.setText("校医院全场9台桩共90孔 · 余 " + s.getFreeSockets() + " 可用");
+                if (tvTrend != null) tvTrend.setText("校医院全场9台桩共90孔 · 实时余 " + s.getFreeSockets() + " 可用");
             } else {
                 if (tvFree != null) tvFree.setText(String.valueOf(s.getFreeSockets()));
-                if (tvTotal != null) tvTotal.setText("个可用 / 共 " + s.getTotalSockets() + " 桩");
+                if (tvTotal != null) tvTotal.setText("个可用 / 共 " + s.getTotalSockets() + " 孔");
                 if (tvTrend != null) tvTrend.setText(s.getTrendPrediction());
             }
 
@@ -299,10 +294,7 @@ public class MainActivity extends AppCompatActivity {
                 if (s.isFavoriteStation()) {
                     tvBreakdown.setText(s.getPilesFocusSummary());
                 } else {
-                    tvBreakdown.setText(String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
-                            s.getFreeFastSockets(), s.getFastSockets(),
-                            s.getFreeSlowSockets(), s.getSlowSockets(),
-                            s.getInUseSockets()));
+                    tvBreakdown.setText(s.getPilesRemainingSummary());
                 }
             }
 

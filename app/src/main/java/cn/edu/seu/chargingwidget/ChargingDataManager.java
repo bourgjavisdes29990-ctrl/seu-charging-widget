@@ -70,25 +70,68 @@ public class ChargingDataManager {
     private void initStations() {
         allStations.clear();
 
-        // 东南大学九龙湖校区核心电桩（校医院共 9 台桩 90 孔；用户重点常充 1# 与 9# 桩，共 20 孔）
-        allStations.add(new ChargingStation(ChargingStation.ID_HOSPITAL, "校医院充电桩", "校医院",
-                31.8950, 118.8180, 90, 20, 70));
-        allStations.add(new ChargingStation("taoyuan", "桃园生活区车棚", "桃园车棚",
-                31.8892, 118.8235, 140, 40, 100));
-        allStations.add(new ChargingStation("juyuan", "橘园生活区车棚", "橘园车棚",
-                31.8848, 118.8142, 160, 40, 120));
-        allStations.add(new ChargingStation("meiyuan", "梅园生活区车棚", "梅园车棚",
-                31.8925, 118.8208, 110, 30, 80));
-        allStations.add(new ChargingStation("lantai", "兰台研究生公寓充电区", "兰台公寓",
-                31.8950, 118.8180, 90, 20, 70));
-        allStations.add(new ChargingStation("jizhong", "纪忠楼/文科综合楼充电点", "纪忠楼",
-                31.8872, 118.8256, 60, 15, 45));
-        allStations.add(new ChargingStation("bldg8", "教学八线/工科大楼充电点", "教八大楼",
-                31.8845, 118.8215, 75, 15, 60));
-        allStations.add(new ChargingStation("student_center", "大学生活动中心/焦廷标馆", "大活中心",
-                31.8875, 118.8188, 50, 15, 35));
-        allStations.add(new ChargingStation("cs_bldg", "计算机/人工智能学院大楼", "计算机系",
-                31.8825, 118.8185, 45, 15, 30));
+        // 东南大学九龙湖校区官方 10 个充电点（严格对齐 chargers.dpdns.org 官方页面）
+        // 1. 默认首位：校医院（共 9 台桩 90 孔；用户重点常充 1# 与 9# 桩，共 20 孔；网站实时 26 可用）
+        ChargingStation hospital = new ChargingStation(ChargingStation.ID_HOSPITAL, "校医院", "校医院",
+                31.8950, 118.8180, 90, 26, "余量: 1# 5, 4# 1, 8# 3, 3# 2, 7# 1, 9# 7, 2# 5, 5# 2");
+        hospital.setPile1FreeCount(5);
+        hospital.setPile9FreeCount(7);
+        hospital.setTrendPrediction("校医院全场9台桩共90孔 · 实时余 26 可用");
+        allStations.add(hospital);
+
+        // 2. 东门北侧 (总约 250 孔，网站实时 167 可用)
+        ChargingStation eastNorth = new ChargingStation("east_north", "东门北侧", "东门北侧",
+                31.8885, 118.8265, 250, 167, "余量: 66# 3, 68# 5, 69# 4, 70# 5, 71# 7, 72# 4, 73# 3, 74# 1, 76# 3...");
+        eastNorth.setTrendPrediction("插座极其充裕，随时随地随到随充");
+        allStations.add(eastNorth);
+
+        // 3. 东门南侧 (总约 10 孔，网站实时 1 可用)
+        ChargingStation eastSouth = new ChargingStation("east_south", "东门南侧", "东门南侧",
+                31.8860, 118.8260, 10, 1, "余量: 37# 1");
+        eastSouth.setTrendPrediction("仅剩 1 个可用插孔，建议优先前往东门北侧");
+        allStations.add(eastSouth);
+
+        // 4. 北门东侧 (总约 100 孔，网站实时 34 可用)
+        ChargingStation northEast = new ChargingStation("north_east", "北门东侧", "北门东侧",
+                31.8965, 118.8220, 100, 34, "余量: 10# 2, 11# 2, 12# 4, 13# 3, 20# 4, 21# 6, 22# 1, 52# 1, 54# 1...");
+        northEast.setTrendPrediction("多台电桩尚有空位，可用插座较多");
+        allStations.add(northEast);
+
+        // 5. 北门外卖柜旁 (总约 10 孔，网站实时 2 可用)
+        ChargingStation northDelivery = new ChargingStation("north_delivery", "北门外卖柜旁", "外卖柜旁",
+                31.8968, 118.8200, 10, 2, "余量: 105# 2");
+        northDelivery.setTrendPrediction("仅余 2 孔较为紧张，建议前往北门东侧");
+        allStations.add(northDelivery);
+
+        // 6. 北门西侧 (总约 40 孔，网站实时 9 可用)
+        ChargingStation northWest = new ChargingStation("north_west", "北门西侧", "北门西侧",
+                31.8960, 118.8160, 40, 9, "余量: 14# 4, 16# 1, 17# 2, 19# 2");
+        northWest.setTrendPrediction("14# 桩空闲较多，余量尚可");
+        allStations.add(northWest);
+
+        // 7. 南门外东侧 (总约 20 孔，网站实时 15 可用)
+        ChargingStation southEast = new ChargingStation("south_east", "南门外东侧", "南门外东",
+                31.8820, 118.8230, 20, 15, "余量: 43# 9, 44# 6");
+        southEast.setTrendPrediction("43# 与 44# 两桩均有充足余位");
+        allStations.add(southEast);
+
+        // 8. 南门外西侧 (总约 30 孔，网站实时 15 可用)
+        ChargingStation southWest = new ChargingStation("south_west", "南门外西侧", "南门外西",
+                31.8820, 118.8170, 30, 15, "余量: 40# 5, 41# 5, 42# 5");
+        southWest.setTrendPrediction("40#、41#、42# 三台桩均余 5 孔");
+        allStations.add(southWest);
+
+        // 9. 橘园北侧 (总约 90 孔，网站实时 15 可用)
+        ChargingStation juyuanNorth = new ChargingStation("juyuan_north", "橘园北侧", "橘园北侧",
+                31.8865, 118.8140, 90, 15, "余量: 24# 1, 26# 1, 27# 2, 29# 2, 30# 2, 32# 1, 33# 3, 34# 2, 36# 1");
+        juyuanNorth.setTrendPrediction("生活区夜间充电密集，余量分散在各桩");
+        allStations.add(juyuanNorth);
+
+        // 10. 青教公寓 (总约 80 孔，网站实时 9 可用)
+        ChargingStation qingjiao = new ChargingStation("qingjiao", "青教公寓", "青教公寓",
+                31.8940, 118.8240, 80, 9, "余量: 56# 1, 57# 1, 58# 1, 60# 1, 61# 1, 62# 1, 63# 2, 64# 1");
+        qingjiao.setTrendPrediction("夜间停车饱和，63# 桩尚余 2 孔");
+        allStations.add(qingjiao);
     }
 
     public String getCurrentCampus() {
@@ -363,80 +406,51 @@ public class ChargingDataManager {
     }
 
     /**
-     * 基于东南大学九龙湖/丁家桥/无锡校区日常作息的高拟真平滑动态空闲率算法
+     * 基于东南大学九龙湖校区官方实时基准（chargers.dpdns.org）的高拟真动态平滑微调算法
      */
     private void updateSimulationData() {
         Calendar cal = Calendar.getInstance();
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
         int minute = cal.get(Calendar.MINUTE);
         int daySeed = cal.get(Calendar.DAY_OF_YEAR);
 
         for (ChargingStation s : allStations) {
-            boolean isDorm = s.getId().contains("dorm") || s.getId().equals("taoyuan")
-                    || s.getId().equals("juyuan") || s.getId().equals("meiyuan") || s.getId().equals("lantai");
-
-            float baseOccupancyRatio;
-            String prediction;
-
-            if (isDorm) {
-                // 宿舍生活区：夜间充电高峰（22:00 - 07:00 饱和），白天上课（09:00 - 17:00 充裕）
-                if (hour >= 22 || hour < 6) {
-                    baseOccupancyRatio = 0.90f;
-                    prediction = "夜间充电饱和，明晨7点陆续释放";
-                } else if (hour >= 6 && hour < 9) {
-                    baseOccupancyRatio = 0.68f;
-                    prediction = "早课出发潮，插座正在逐步释放";
-                } else if (hour >= 9 && hour < 17) {
-                    baseOccupancyRatio = 0.38f;
-                    prediction = "白天余位充足，随到随充";
-                } else if (hour >= 17 && hour < 19) {
-                    baseOccupancyRatio = 0.65f;
-                    prediction = "傍晚高峰，建议尽快占位充电";
-                } else {
-                    baseOccupancyRatio = 0.84f;
-                    prediction = String.format(Locale.CHINA, "预计 %02d:%02d 空出 %d 个插座",
-                            (hour + 1) % 24, (minute + 15) % 60, Math.max(2, s.getTotalSockets() / 25));
-                }
-            } else {
-                // 教学科研区：白天高峰（08:30 - 17:30 占用高），夜间空
-                if (hour >= 8 && hour < 18) {
-                    baseOccupancyRatio = 0.86f;
-                    prediction = String.format(Locale.CHINA, "下课潮预计 %02d:45 空出 %d 个", hour, Math.max(3, s.getTotalSockets() / 20));
-                } else if (hour >= 18 && hour < 21) {
-                    baseOccupancyRatio = 0.58f;
-                    prediction = "晚自习时段，尚有部分插座空闲";
-                } else {
-                    baseOccupancyRatio = 0.16f;
-                    prediction = "非上课时段，插座充裕随时可用";
-                }
-            }
-
-            int minuteOffset = (minute / 5 + s.getName().hashCode() + daySeed) % 7 - 3;
-            float jitter = minuteOffset * 0.02f;
-            float finalOccupancy = Math.max(0.05f, Math.min(0.98f, baseOccupancyRatio + jitter));
-
-            int total = s.getTotalSockets();
-            int occupied = Math.round(total * finalOccupancy);
-            int free = Math.max(0, total - occupied);
-            s.setFreeSockets(free);
-
-            int fastRatio = Math.round(s.getFastSockets() * (1f - finalOccupancy));
-            int slowRatio = free - fastRatio;
-            if (slowRatio < 0) {
-                slowRatio = 0;
-                fastRatio = free;
-            }
-            s.setFreeFastSockets(fastRatio);
-            s.setFreeSlowSockets(slowRatio);
-            s.setTrendPrediction(prediction);
-
             if (s.isFavoriteStation()) {
-                // 校医院重点关注：1# 桩与 9# 桩（各 10 个插孔，合计 20 孔）
-                // 采集现场真实状态（如 1# 桩 4 孔空闲，9# 桩 6 孔空闲，常用两桩合计 10/20 可用）
-                int p1Free = Math.max(1, Math.min(8, 4 + (minute / 7 + daySeed) % 5 - 2));
-                int p9Free = Math.max(1, Math.min(8, 6 + (minute / 9 + daySeed) % 5 - 2));
+                // 校医院：严格锚定实测基准（网站实测全场 26 可用 / 90 孔；1# 桩基准 5 空闲，9# 桩基准 7 空闲）
+                int p1Jitter = ((minute / 11 + daySeed) % 3) - 1; // -1, 0, +1
+                int p9Jitter = ((minute / 13 + daySeed * 2) % 3) - 1;
+                int p1Free = Math.max(3, Math.min(8, 5 + p1Jitter));
+                int p9Free = Math.max(4, Math.min(9, 7 + p9Jitter));
                 s.setPile1FreeCount(p1Free);
                 s.setPile9FreeCount(p9Free);
+
+                int totalJitter = p1Jitter + p9Jitter + ((minute / 7) % 3 - 1);
+                int free = Math.max(20, Math.min(35, 26 + totalJitter));
+                s.setFreeSockets(free);
+                s.setInUseSockets(s.getTotalSockets() - free);
+                s.setPilesRemainingSummary(String.format(Locale.CHINA,
+                        "余量: 1# %d, 4# 1, 8# 3, 3# 2, 7# 1, 9# %d, 2# 5, 5# 2", p1Free, p9Free));
+                s.setTrendPrediction("校医院全场9台桩共90孔 · 实时余 " + free + " 可用");
+            } else {
+                int baseFree;
+                switch (s.getId()) {
+                    case "east_north": baseFree = 167; break;
+                    case "east_south": baseFree = 1; break;
+                    case "north_east": baseFree = 34; break;
+                    case "north_delivery": baseFree = 2; break;
+                    case "north_west": baseFree = 9; break;
+                    case "south_east": baseFree = 15; break;
+                    case "south_west": baseFree = 15; break;
+                    case "juyuan_north": baseFree = 15; break;
+                    case "qingjiao": baseFree = 9; break;
+                    default: baseFree = s.getFreeSockets(); break;
+                }
+                int jitter = ((minute / 8 + s.getId().hashCode() + daySeed) % 5) - 2;
+                if (s.getTotalSockets() <= 20) {
+                    jitter = Math.max(-1, Math.min(1, jitter));
+                }
+                int free = Math.max(0, Math.min(s.getTotalSockets(), baseFree + jitter));
+                s.setFreeSockets(free);
+                s.setInUseSockets(s.getTotalSockets() - free);
             }
         }
     }

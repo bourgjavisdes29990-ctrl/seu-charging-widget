@@ -31,10 +31,35 @@ public class ChargingStation {
 
     // 重点关注桩位（校医院 1# 桩与 9# 桩，各 10 个插孔，合计 20 孔）
     private boolean isFavoriteStation = false;
-    private int pile1FreeCount = 4;
-    private int pile9FreeCount = 6;
+    private int pile1FreeCount = 5;
+    private int pile9FreeCount = 7;
     private String pile1FreePorts = "1, 2, 5, 8";
     private String pile9FreePorts = "2, 3, 4, 5, 9, 10";
+    private String pilesRemainingSummary = "";
+
+    public ChargingStation(String id, String name, String shortName,
+                           double latitude, double longitude, int totalSockets, int initialFree, String pilesRemainingSummary) {
+        this.id = id;
+        this.name = name;
+        this.shortName = shortName;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.totalSockets = totalSockets;
+        this.freeSockets = initialFree;
+        this.inUseSockets = Math.max(0, totalSockets - initialFree);
+        this.faultSockets = 0;
+        this.fastSockets = 0;
+        this.slowSockets = totalSockets;
+        this.freeFastSockets = 0;
+        this.freeSlowSockets = initialFree;
+        this.pilesRemainingSummary = pilesRemainingSummary;
+        this.trendPrediction = "";
+        if (ID_HOSPITAL.equals(id)) {
+            this.isFavoriteStation = true;
+            this.pile1FreeCount = 5;
+            this.pile9FreeCount = 7;
+        }
+    }
 
     public ChargingStation(String id, String name, String shortName,
                            double latitude, double longitude, int totalSockets, int fastSockets, int slowSockets) {
@@ -54,6 +79,8 @@ public class ChargingStation {
         this.trendPrediction = "";
         if (ID_HOSPITAL.equals(id)) {
             this.isFavoriteStation = true;
+            this.pile1FreeCount = 5;
+            this.pile9FreeCount = 7;
         }
     }
 
@@ -239,6 +266,14 @@ public class ChargingStation {
 
     public String getPilesDetailSummary() {
         return "1#空孔(" + pile1FreePorts + ") · 9#空孔(" + pile9FreePorts + ")";
+    }
+
+    public String getPilesRemainingSummary() {
+        return pilesRemainingSummary != null ? pilesRemainingSummary : "";
+    }
+
+    public void setPilesRemainingSummary(String pilesRemainingSummary) {
+        this.pilesRemainingSummary = pilesRemainingSummary;
     }
 
     public int getStatus() {
