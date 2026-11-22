@@ -27,12 +27,6 @@ android {
         }
     }
 
-    applicationVariants.all { variant ->
-        variant.outputs.all {
-            outputFileName = "seu-charging-widget-v${variant.versionName}.apk"
-        }
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
