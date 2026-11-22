@@ -75,8 +75,8 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
             // 1. 顶部模式标签（显示当前定位或校区）
             views.setTextViewText(R.id.tv_mode_tag, result.modeTag);
 
-            // 2. 直达 Where Are Available Chargers 网页版 (chargers.dpdns.org/status)
-            String webUrl = context.getString(R.string.dpdns_status_url);
+            // 2. 直达专属免安装 PWA 网页版 (GitHub Pages)
+            String webUrl = context.getString(R.string.pwa_url);
             Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(webUrl));
             webIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             PendingIntent webPendingIntent = PendingIntent.getActivity(
@@ -109,9 +109,9 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
                     break;
             }
 
-            // 5. 核心空闲插座大数
+            // 5. 核心空闲插座大数（明确展示可用数与总数，杜绝歧义）
             views.setTextViewText(R.id.tv_free_count, String.valueOf(station.getFreeSockets()));
-            views.setTextViewText(R.id.tv_total_suffix, "/ " + station.getTotalSockets() + " 空闲");
+            views.setTextViewText(R.id.tv_total_suffix, "个可用 / 共 " + station.getTotalSockets() + " 桩");
 
             // 6. 细分快慢充配比与趋势（校医院重点展示 1# 与 9# 桩位）
             String breakdownStr;

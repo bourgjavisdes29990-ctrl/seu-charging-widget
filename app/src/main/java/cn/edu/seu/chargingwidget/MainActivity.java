@@ -74,10 +74,10 @@ public class MainActivity extends AppCompatActivity {
             }));
         });
 
-        // 打开 Where Are Available Chargers 网页版
+        // 打开专属 PWA 全校看板 (GitHub Pages)
         Button btnOpenDpdns = findViewById(R.id.btn_open_dpdns);
         btnOpenDpdns.setOnClickListener(v -> {
-            String url = getString(R.string.dpdns_status_url);
+            String url = getString(R.string.pwa_url);
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
         });
 
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
             View btnWeb = widgetPreviewRoot.findViewById(R.id.btn_web);
             if (btnWeb != null) {
                 btnWeb.setOnClickListener(v -> {
-                    String url = getString(R.string.dpdns_status_url);
+                    String url = getString(R.string.pwa_url);
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                 });
             }
@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
             }
             if (tvDist != null) tvDist.setText(result.distanceText);
             if (tvFree != null) tvFree.setText(String.valueOf(currentStation.getFreeSockets()));
-            if (tvTotal != null) tvTotal.setText("/ " + currentStation.getTotalSockets() + " 空闲");
+            if (tvTotal != null) tvTotal.setText("个可用 / 共 " + currentStation.getTotalSockets() + " 桩");
 
             if (tvBadge != null) {
                 switch (currentStation.getStatus()) {
@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (tvFree != null) tvFree.setText(String.valueOf(s.getFreeSockets()));
-            if (tvTotal != null) tvTotal.setText("/ " + s.getTotalSockets() + " 插座");
+            if (tvTotal != null) tvTotal.setText("个可用 / 共 " + s.getTotalSockets() + " 桩");
 
             if (tvBadge != null) {
                 switch (s.getStatus()) {

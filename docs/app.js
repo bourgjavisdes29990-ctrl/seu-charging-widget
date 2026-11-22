@@ -319,7 +319,7 @@ function renderApp() {
       </div>
       <div class="card-main-stats">
         <span class="card-free-num">${s.free}</span>
-        <span class="card-total-desc">/ ${s.total} 空闲插座</span>
+        <span class="card-total-desc">个可用 / 共 ${s.total} 桩</span>
       </div>
       <div class="card-sub-info">
         <span class="card-breakdown">${breakdownHtml}</span>
@@ -336,7 +336,7 @@ function openStationModal(station) {
   document.getElementById('modal-badge').innerText = station.statusText;
   document.getElementById('modal-badge').className = `badge ${station.badgeClass}`;
   document.getElementById('modal-free-count').innerText = station.free;
-  document.getElementById('modal-total-count').innerText = `/ ${station.total} 空闲插座`;
+  document.getElementById('modal-total-count').innerText = `个可用 / 共 ${station.total} 桩`;
   
   if (station.id === 'hospital') {
     document.getElementById('modal-desc').innerHTML = `${station.desc}<br><br><strong style="color:#38bdf8;">⭐ 重点桩位实时状态：</strong><br>1# 桩：${station.pile1Free ? '🟢 空闲可用' : '🔴 正在充电'}<br>9# 桩：${station.pile9Free ? '🟢 空闲可用' : '🔴 正在充电'}`;

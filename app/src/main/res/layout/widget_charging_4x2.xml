@@ -144,7 +144,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginBottom="4dp"
-                android:text="/ 60 空闲插座"
+                android:text="个可用 / 共 20 桩"
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>

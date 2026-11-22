@@ -17,7 +17,7 @@
     <string name="campus_wuxi">无锡校区</string>
 
     <!-- 引用开源项目与网页端服务 -->
-    <string name="pwa_url">https://chargers.dpdns.org/status</string>
+    <string name="pwa_url">https://bourgjavisdes29990-ctrl.github.io/seu-charging-widget/</string>
     <string name="dpdns_status_url">https://chargers.dpdns.org/status</string>
     <string name="github_repo_url">https://github.com/Golevka2001/Where-Are-Available-Chargers</string>
 </resources>
