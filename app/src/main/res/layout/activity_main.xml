@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="18dp">
 
         <!-- App Header -->
         <LinearLayout
@@ -20,8 +20,8 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:src="@drawable/ic_bolt" />
 
             <LinearLayout
@@ -34,7 +34,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="东大充电桩 · 桌面小组件"
+                    android:text="东大电桩 · 桌面小组件"
                     android:textColor="@color/text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -43,113 +43,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="东南大学九龙湖校区 · 电动车电桩状态"
+                    android:text="九龙湖 · 丁家桥 · 无锡校区实时监测"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Permission Card -->
+        <!-- Data Source & Author Attribution Card -->
         <androidx.cardview.widget.CardView
-            android:id="@+id/card_permission"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            app:cardBackgroundColor="@color/bg_card_inner"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="📍 智能位置感知授权"
-                    android:textColor="@color/text_primary"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_perm_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:lineSpacingExtra="3dp"
-                    android:text="授予被动定位权限后，桌面卡片将在亮屏时自动感知你距离兰台、桃园、橘园、梅园、教八等哪个车棚最近，并自动切换展示。"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
-
-                <Button
-                    android:id="@+id/btn_grant_permission"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:layout_marginTop="12dp"
-                    android:backgroundTint="@color/btn_accent_bg"
-                    android:text="授权定位权限"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Widget Preview Box -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="📱 桌面小部件效果预览 (4×2)"
-            android:textColor="@color/text_primary"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-
-        <FrameLayout
-            android:id="@+id/widget_preview_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
-            <!-- Include the widget layout here for live preview inside app -->
-            <include layout="@layout/widget_charging_4x2" />
-        </FrameLayout>
-
-        <!-- Quick Launch Web PWA -->
-        <Button
-            android:id="@+id/btn_open_pwa"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@color/bg_card_inner"
-            android:text="🌐 打开网页全校电桩地图版 (PWA)"
-            android:textColor="@color/accent_cyan"
-            android:textSize="14sp" />
-
-        <!-- Stations List Header -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="⚡ 九龙湖校区电桩实时总览"
-            android:textColor="@color/text_primary"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:id="@+id/layout_stations_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="vertical">
-            <!-- Populated dynamically via code -->
-        </LinearLayout>
-
-        <!-- Tips Section -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="24dp"
             app:cardBackgroundColor="@color/bg_card_inner"
             app:cardCornerRadius="14dp"
             app:cardElevation="0dp">
@@ -163,21 +67,183 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🔋 桌面小组件使用指南"
+                    android:text="⚡ 数据源：Where Are Available Chargers?!"
+                    android:textColor="@color/accent_cyan"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_sync_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="参考 Golevka2001 开源项目架构，已打通 chargers.dpdns.org 状态接口与本地智能推算。"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn_sync_remote"
+                        android:layout_width="0dp"
+                        android:layout_height="38dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/btn_accent_bg"
+                        android:text="立即同步数据"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btn_open_dpdns"
+                        android:layout_width="0dp"
+                        android:layout_height="38dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/btn_pill_stroke"
+                        android:text="打开网页版 🌐"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Location Permission Box -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_permission"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="@color/bg_card_inner"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📍 智能多校区被动感知"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/tv_perm_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:lineSpacingExtra="3dp"
-                    android:text="1. 长按手机桌面空白处 -> 选择「微件/小部件」 -> 找到「东大充电桩」并拖至桌面。\n2. 零后台常驻：仅在每次亮屏解锁或手动点击时毫秒级被动更新，绝不后台常驻耗电。\n3. 手动切换车棚后，将保留 45 分钟锁定保护期，之后恢复智能定位跟随。"
-                    android:textColor="@color/text_muted"
+                    android:layout_marginTop="4dp"
+                    android:text="小组件将根据你的地理位置，智能感知你身在九龙湖、丁家桥还是无锡校区，并自动匹配最近的车棚。"
+                    android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/btn_grant_permission"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="8dp"
+                    android:backgroundTint="@color/accent_blue"
+                    android:text="授权定位权限"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+
+        <!-- Widget Preview -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="📱 桌面小部件效果预览 (4×2)"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <FrameLayout
+            android:id="@+id/widget_preview_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+            <include layout="@layout/widget_charging_4x2" />
+        </FrameLayout>
+
+        <!-- Campus Selector Tabs -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="🏫 选择校区查看车棚列表"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/tab_jiulonghu"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/btn_accent_bg"
+                android:text="九龙湖校区"
+                android:textColor="@color/text_primary"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/tab_dingjiaqiao"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/btn_pill_stroke"
+                android:text="丁家桥校区"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/tab_wuxi"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/btn_pill_stroke"
+                android:text="无锡校区"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Stations List Container -->
+        <LinearLayout
+            android:id="@+id/layout_stations_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical">
+            <!-- Populated dynamically via code -->
+        </LinearLayout>
+
+        <!-- Open GitHub Repository -->
+        <Button
+            android:id="@+id/btn_open_github"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="24dp"
+            android:backgroundTint="@color/bg_card_inner"
+            android:text="⭐ 查看 Golevka2001 原项目 GitHub 仓库"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
 
     </LinearLayout>
 </ScrollView>

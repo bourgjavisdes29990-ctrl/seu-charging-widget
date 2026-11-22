@@ -41,8 +41,14 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
             dataManager.resetToAutoLocation();
             triggerUpdate(context);
         } else if (ACTION_REFRESH.equals(action) || Intent.ACTION_USER_PRESENT.equals(action)) {
-            // 亮屏解锁或手动刷新，被动重算展示
+            // 亮屏解锁或手动点击刷新，被动重算并更新
             triggerUpdate(context);
+            // 尝试在网络空闲时平滑拉取 chargers.dpdns.org
+            dataManager.fetchRemoteDataAsync((success, message) -> {
+                if (success) {
+                    triggerUpdate(context);
+                }
+            });
         }
     }
 
@@ -66,23 +72,24 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
         for (int appWidgetId : appWidgetIds) {
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_charging_4x2);
 
-            // 1. 顶部栏与模式标识
+            // 1. 顶部模式标签（显示当前定位或校区）
             views.setTextViewText(R.id.tv_mode_tag, result.modeTag);
 
-            // 2. 直达 PWA 网页版按钮（严格携带 FLAG_ACTIVITY_NEW_TASK）
-            String pwaUrl = context.getString(R.string.pwa_url);
-            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(pwaUrl));
+            // 2. 直达 Where Are Available Chargers 网页版 (chargers.dpdns.org/status)
+            String webUrl = context.getString(R.string.dpdns_status_url);
+            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(webUrl));
             webIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             PendingIntent webPendingIntent = PendingIntent.getActivity(
                     context, 0, webIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
             );
             views.setOnClickPendingIntent(R.id.btn_web, webPendingIntent);
 
-            // 3. 车棚名称与被动距离感知
-            views.setTextViewText(R.id.tv_station_name, station.getName());
+            // 3. 车棚名称（带校区前缀）与距离提示
+            String displayName = "[" + station.getCampusName().replace("校区", "") + "] " + station.getName();
+            views.setTextViewText(R.id.tv_station_name, displayName);
             views.setTextViewText(R.id.tv_distance_info, result.distanceText);
 
-            // 4. 状态徽章色彩（绿色充裕、黄色紧张、红色已满）
+            // 4. 状态色彩徽章
             switch (station.getStatus()) {
                 case ChargingStation.STATUS_AMPLE:
                     views.setTextViewText(R.id.tv_status_badge, "● 充裕");
@@ -102,22 +109,23 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
                     break;
             }
 
-            // 5. 核心空闲插座大字展示
+            // 5. 核心空闲插座大数
             views.setTextViewText(R.id.tv_free_count, String.valueOf(station.getFreeSockets()));
-            views.setTextViewText(R.id.tv_total_suffix, "/ " + station.getTotalSockets() + " 空闲插座");
+            views.setTextViewText(R.id.tv_total_suffix, "/ " + station.getTotalSockets() + " 空闲");
 
-            // 6. 细分快充慢充与趋势预估
-            String breakdownStr = String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d",
+            // 6. 细分快慢充配比与趋势
+            String breakdownStr = String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
                     station.getFreeFastSockets(), station.getFastSockets(),
-                    station.getFreeSlowSockets(), station.getSlowSockets());
+                    station.getFreeSlowSockets(), station.getSlowSockets(),
+                    station.getInUseSockets());
             views.setTextViewText(R.id.tv_breakdown, breakdownStr);
             views.setTextViewText(R.id.tv_trend_prediction, station.getTrendPrediction());
 
             // 7. 更新时间
             views.setTextViewText(R.id.tv_update_time, updateTimeStr);
 
-            // 8. 按钮交互广播配置 (PendingIntent.getBroadcast)
-            // 切换车棚按钮
+            // 8. 按钮广播注册
+            // 循环切换车棚
             Intent switchIntent = new Intent(context, ChargingWidgetProvider.class);
             switchIntent.setAction(ACTION_SWITCH_NEXT);
             PendingIntent switchPendingIntent = PendingIntent.getBroadcast(
@@ -125,7 +133,7 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
             );
             views.setOnClickPendingIntent(R.id.btn_switch_next, switchPendingIntent);
 
-            // 自动定位 / 离我最近按钮
+            // 自动定位 / 离我最近
             Intent autoLocIntent = new Intent(context, ChargingWidgetProvider.class);
             autoLocIntent.setAction(ACTION_TOGGLE_AUTO_LOCATION);
             PendingIntent autoLocPendingIntent = PendingIntent.getBroadcast(
@@ -133,7 +141,7 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
             );
             views.setOnClickPendingIntent(R.id.btn_auto_locate, autoLocPendingIntent);
 
-            // 立即刷新按钮
+            // 立即刷新
             Intent refreshIntent = new Intent(context, ChargingWidgetProvider.class);
             refreshIntent.setAction(ACTION_REFRESH);
             PendingIntent refreshPendingIntent = PendingIntent.getBroadcast(

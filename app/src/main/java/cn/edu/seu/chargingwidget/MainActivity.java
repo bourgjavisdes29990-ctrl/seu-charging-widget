@@ -28,8 +28,15 @@ public class MainActivity extends AppCompatActivity {
 
     private Button btnGrantPermission;
     private TextView tvPermStatus;
+    private TextView tvSyncStatus;
+    private Button btnSyncRemote;
+    private Button tabJiulonghu;
+    private Button tabDingjiaqiao;
+    private Button tabWuxi;
     private LinearLayout layoutStationsList;
     private View widgetPreviewRoot;
+
+    private String selectedCampus = ChargingStation.CAMPUS_JIULONGHU;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,24 +58,55 @@ public class MainActivity extends AppCompatActivity {
     private void initViews() {
         btnGrantPermission = findViewById(R.id.btn_grant_permission);
         tvPermStatus = findViewById(R.id.tv_perm_status);
+        tvSyncStatus = findViewById(R.id.tv_sync_status);
+        btnSyncRemote = findViewById(R.id.btn_sync_remote);
+        tabJiulonghu = findViewById(R.id.tab_jiulonghu);
+        tabDingjiaqiao = findViewById(R.id.tab_dingjiaqiao);
+        tabWuxi = findViewById(R.id.tab_wuxi);
         layoutStationsList = findViewById(R.id.layout_stations_list);
         widgetPreviewRoot = findViewById(R.id.widget_preview_container);
 
         btnGrantPermission.setOnClickListener(v -> requestLocationPermissions());
 
-        Button btnOpenPwa = findViewById(R.id.btn_open_pwa);
-        btnOpenPwa.setOnClickListener(v -> {
-            String url = getString(R.string.pwa_url);
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            startActivity(browserIntent);
+        // 云端同步按钮
+        btnSyncRemote.setOnClickListener(v -> {
+            btnSyncRemote.setEnabled(false);
+            btnSyncRemote.setText("正在同步...");
+            ChargingDataManager.getInstance(this).fetchRemoteDataAsync((success, message) -> runOnUiThread(() -> {
+                btnSyncRemote.setEnabled(true);
+                btnSyncRemote.setText("立即同步数据");
+                tvSyncStatus.setText(message);
+                refreshPreviewAndList();
+                notifyWidgetUpdate();
+                Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+            }));
         });
 
-        // Setup interactive buttons in the in-app widget preview
+        // 打开 Where Are Available Chargers 网页版
+        Button btnOpenDpdns = findViewById(R.id.btn_open_dpdns);
+        btnOpenDpdns.setOnClickListener(v -> {
+            String url = getString(R.string.dpdns_status_url);
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        });
+
+        // 打开 GitHub 开源仓库
+        Button btnOpenGithub = findViewById(R.id.btn_open_github);
+        btnOpenGithub.setOnClickListener(v -> {
+            String url = getString(R.string.github_repo_url);
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        });
+
+        // 校区 Tab 切换
+        tabJiulonghu.setOnClickListener(v -> selectCampus(ChargingStation.CAMPUS_JIULONGHU));
+        tabDingjiaqiao.setOnClickListener(v -> selectCampus(ChargingStation.CAMPUS_DINGJIAQIAO));
+        tabWuxi.setOnClickListener(v -> selectCampus(ChargingStation.CAMPUS_WUXI));
+
+        // 小组件预览交互
         if (widgetPreviewRoot != null) {
             View btnWeb = widgetPreviewRoot.findViewById(R.id.btn_web);
             if (btnWeb != null) {
                 btnWeb.setOnClickListener(v -> {
-                    String url = getString(R.string.pwa_url);
+                    String url = getString(R.string.dpdns_status_url);
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                 });
             }
@@ -103,16 +141,38 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void selectCampus(String campus) {
+        this.selectedCampus = campus;
+        ChargingDataManager.getInstance(this).setCurrentCampus(campus);
+
+        int activeBg = ContextCompat.getColor(this, R.color.btn_accent_bg);
+        int inactiveBg = ContextCompat.getColor(this, R.color.btn_pill_stroke);
+        int activeText = ContextCompat.getColor(this, R.color.text_primary);
+        int inactiveText = ContextCompat.getColor(this, R.color.text_secondary);
+
+        tabJiulonghu.setBackgroundColor(campus.equals(ChargingStation.CAMPUS_JIULONGHU) ? activeBg : inactiveBg);
+        tabJiulonghu.setTextColor(campus.equals(ChargingStation.CAMPUS_JIULONGHU) ? activeText : inactiveText);
+
+        tabDingjiaqiao.setBackgroundColor(campus.equals(ChargingStation.CAMPUS_DINGJIAQIAO) ? activeBg : inactiveBg);
+        tabDingjiaqiao.setTextColor(campus.equals(ChargingStation.CAMPUS_DINGJIAQIAO) ? activeText : inactiveText);
+
+        tabWuxi.setBackgroundColor(campus.equals(ChargingStation.CAMPUS_WUXI) ? activeBg : inactiveBg);
+        tabWuxi.setTextColor(campus.equals(ChargingStation.CAMPUS_WUXI) ? activeText : inactiveText);
+
+        refreshPreviewAndList();
+        notifyWidgetUpdate();
+    }
+
     private void checkLocationPermissionState() {
         boolean hasFine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         boolean hasCoarse = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
         if (hasFine || hasCoarse) {
-            tvPermStatus.setText("✅ 已获得定位权限！小组件已启动被动地理围栏计算，将在亮屏或点击时智能感知离你最近的九龙湖车棚。");
+            tvPermStatus.setText("✅ 已获定位权限：在九龙湖、丁家桥或无锡校区时，将自动定位切换至对应校区与最近车棚。");
             tvPermStatus.setTextColor(ContextCompat.getColor(this, R.color.status_green_text));
             btnGrantPermission.setVisibility(View.GONE);
         } else {
-            tvPermStatus.setText("⚠️ 尚未授予定位权限。未授权时桌面小组件将默认展示默认车棚，无法自动感知当前离哪个车棚最近。");
+            tvPermStatus.setText("⚠️ 尚未授予定位权限：无法自动感知校区与最近车棚，小组件将显示默认校区车棚。");
             tvPermStatus.setTextColor(ContextCompat.getColor(this, R.color.status_yellow_text));
             btnGrantPermission.setVisibility(View.VISIBLE);
         }
@@ -141,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
         ChargingDataManager.StationDisplayResult result = dataManager.getCurrentDisplayStation();
         ChargingStation currentStation = result.station;
 
-        // 1. Update Preview Card
+        // 1. 刷新预览卡片
         if (widgetPreviewRoot != null) {
             TextView tvMode = widgetPreviewRoot.findViewById(R.id.tv_mode_tag);
             TextView tvName = widgetPreviewRoot.findViewById(R.id.tv_station_name);
@@ -154,10 +214,13 @@ public class MainActivity extends AppCompatActivity {
             TextView tvTime = widgetPreviewRoot.findViewById(R.id.tv_update_time);
 
             if (tvMode != null) tvMode.setText(result.modeTag);
-            if (tvName != null) tvName.setText(currentStation.getName());
+            if (tvName != null) {
+                String title = "[" + currentStation.getCampusName().replace("校区", "") + "] " + currentStation.getName();
+                tvName.setText(title);
+            }
             if (tvDist != null) tvDist.setText(result.distanceText);
             if (tvFree != null) tvFree.setText(String.valueOf(currentStation.getFreeSockets()));
-            if (tvTotal != null) tvTotal.setText("/ " + currentStation.getTotalSockets() + " 空闲插座");
+            if (tvTotal != null) tvTotal.setText("/ " + currentStation.getTotalSockets() + " 空闲");
 
             if (tvBadge != null) {
                 switch (currentStation.getStatus()) {
@@ -181,9 +244,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (tvBreakdown != null) {
-                tvBreakdown.setText(String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d",
+                tvBreakdown.setText(String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
                         currentStation.getFreeFastSockets(), currentStation.getFastSockets(),
-                        currentStation.getFreeSlowSockets(), currentStation.getSlowSockets()));
+                        currentStation.getFreeSlowSockets(), currentStation.getSlowSockets(),
+                        currentStation.getInUseSockets()));
             }
 
             if (tvTrend != null) tvTrend.setText(currentStation.getTrendPrediction());
@@ -194,13 +258,13 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        // 2. Update Full Campus Stations List
+        // 2. 刷新选定校区列表
         layoutStationsList.removeAllViews();
-        List<ChargingStation> allStations = dataManager.getAllStations();
+        List<ChargingStation> campusStations = dataManager.getStationsByCampus(selectedCampus);
 
-        for (ChargingStation s : allStations) {
+        for (ChargingStation s : campusStations) {
             View itemView = LayoutInflater.from(this).inflate(R.layout.widget_charging_4x2, layoutStationsList, false);
-            // Hide bottom buttons row in list view for cleaner look
+
             View bottomBar = itemView.findViewById(R.id.btn_switch_next).getParent() instanceof View
                     ? (View) itemView.findViewById(R.id.btn_switch_next).getParent() : null;
             if (bottomBar != null) {
@@ -253,9 +317,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (tvBreakdown != null) {
-                tvBreakdown.setText(String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d",
+                tvBreakdown.setText(String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
                         s.getFreeFastSockets(), s.getFastSockets(),
-                        s.getFreeSlowSockets(), s.getSlowSockets()));
+                        s.getFreeSlowSockets(), s.getSlowSockets(),
+                        s.getInUseSockets()));
             }
             if (tvTrend != null) tvTrend.setText(s.getTrendPrediction());
 

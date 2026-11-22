@@ -1,9 +1,12 @@
-// 东南大学九龙湖校区电动车充电桩 PWA 核心业务逻辑
+// 东南大学九龙湖/丁家桥/无锡校区电动车充电桩 PWA (参考 Golevka2001/Where-Are-Available-Chargers)
 const STATIONS_DATA = [
+  // 1. 九龙湖校区 (Jiulonghu)
   {
     id: "taoyuan",
     name: "桃园生活区车棚",
     shortName: "桃园车棚",
+    campus: "jiulonghu",
+    campusName: "九龙湖校区",
     zone: "dorm",
     lat: 31.8892,
     lng: 118.8235,
@@ -16,6 +19,8 @@ const STATIONS_DATA = [
     id: "juyuan",
     name: "橘园生活区车棚",
     shortName: "橘园车棚",
+    campus: "jiulonghu",
+    campusName: "九龙湖校区",
     zone: "dorm",
     lat: 31.8848,
     lng: 118.8142,
@@ -28,6 +33,8 @@ const STATIONS_DATA = [
     id: "meiyuan",
     name: "梅园生活区车棚",
     shortName: "梅园车棚",
+    campus: "jiulonghu",
+    campusName: "九龙湖校区",
     zone: "dorm",
     lat: 31.8925,
     lng: 118.8208,
@@ -40,6 +47,8 @@ const STATIONS_DATA = [
     id: "lantai",
     name: "兰台研究生公寓充电区",
     shortName: "兰台公寓",
+    campus: "jiulonghu",
+    campusName: "九龙湖校区",
     zone: "dorm",
     lat: 31.8950,
     lng: 118.8180,
@@ -52,6 +61,8 @@ const STATIONS_DATA = [
     id: "jizhong",
     name: "纪忠楼/文科综合楼充电点",
     shortName: "纪忠楼",
+    campus: "jiulonghu",
+    campusName: "九龙湖校区",
     zone: "academic",
     lat: 31.8872,
     lng: 118.8256,
@@ -64,6 +75,8 @@ const STATIONS_DATA = [
     id: "bldg8",
     name: "教学八线/工科大楼充电点",
     shortName: "教八大楼",
+    campus: "jiulonghu",
+    campusName: "九龙湖校区",
     zone: "academic",
     lat: 31.8845,
     lng: 118.8215,
@@ -76,6 +89,8 @@ const STATIONS_DATA = [
     id: "student_center",
     name: "大学生活动中心/焦廷标馆",
     shortName: "大活中心",
+    campus: "jiulonghu",
+    campusName: "九龙湖校区",
     zone: "academic",
     lat: 31.8875,
     lng: 118.8188,
@@ -88,6 +103,8 @@ const STATIONS_DATA = [
     id: "cs_bldg",
     name: "计算机/人工智能学院大楼",
     shortName: "计算机系",
+    campus: "jiulonghu",
+    campusName: "九龙湖校区",
     zone: "academic",
     lat: 31.8825,
     lng: 118.8185,
@@ -95,14 +112,117 @@ const STATIONS_DATA = [
     fast: 15,
     slow: 30,
     desc: "计算机科学与工程学院、人工智能学院大楼北侧车棚"
+  },
+
+  // 2. 丁家桥校区 (Dingjiaqiao)
+  {
+    id: "djq_dorm",
+    name: "丁家桥学生公寓车棚",
+    shortName: "公寓车棚",
+    campus: "dingjiaqiao",
+    campusName: "丁家桥校区",
+    zone: "dorm",
+    lat: 32.0782,
+    lng: 118.7750,
+    total: 80,
+    fast: 20,
+    slow: 60,
+    desc: "丁家桥学生宿舍区、食堂与主干道交界处"
+  },
+  {
+    id: "djq_med",
+    name: "医学院综合教学楼充电点",
+    shortName: "医学院楼",
+    campus: "dingjiaqiao",
+    campusName: "丁家桥校区",
+    zone: "academic",
+    lat: 32.0795,
+    lng: 118.7765,
+    total: 60,
+    fast: 15,
+    slow: 45,
+    desc: "医学院基建楼、综合实验教学大楼旁"
+  },
+  {
+    id: "djq_health",
+    name: "公共卫生学院实验楼车棚",
+    shortName: "公卫大楼",
+    campus: "dingjiaqiao",
+    campusName: "丁家桥校区",
+    zone: "academic",
+    lat: 32.0768,
+    lng: 118.7735,
+    total: 50,
+    fast: 10,
+    slow: 40,
+    desc: "公共卫生学院大楼西侧"
+  },
+  {
+    id: "djq_intl",
+    name: "丁家桥留学生公寓充电区",
+    shortName: "留学生公寓",
+    campus: "dingjiaqiao",
+    campusName: "丁家桥校区",
+    zone: "dorm",
+    lat: 32.0775,
+    lng: 118.7745,
+    total: 40,
+    fast: 10,
+    slow: 30,
+    desc: "丁家桥留学生公寓楼下专用充电区"
+  },
+
+  // 3. 无锡校区 (Wuxi)
+  {
+    id: "wx_dorm",
+    name: "无锡校区学生公寓车棚",
+    shortName: "学生公寓",
+    campus: "wuxi",
+    campusName: "无锡校区",
+    zone: "dorm",
+    lat: 31.4885,
+    lng: 120.2780,
+    total: 100,
+    fast: 30,
+    slow: 70,
+    desc: "无锡分校学生宿舍区、食堂后侧"
+  },
+  {
+    id: "wx_nano",
+    name: "集成电路与微纳大楼充电点",
+    shortName: "微纳大楼",
+    campus: "wuxi",
+    campusName: "无锡校区",
+    zone: "academic",
+    lat: 31.4902,
+    lng: 120.2805,
+    total: 60,
+    fast: 15,
+    slow: 45,
+    desc: "集成电路学院、微纳制造科研大楼旁"
+  },
+  {
+    id: "wx_res",
+    name: "产业研综合科研楼车棚",
+    shortName: "产研大楼",
+    campus: "wuxi",
+    campusName: "无锡校区",
+    zone: "academic",
+    lat: 31.4868,
+    lng: 120.2755,
+    total: 50,
+    fast: 10,
+    slow: 40,
+    desc: "无锡产学研综合大楼、行政办公楼西侧"
   }
 ];
 
 let userLocation = null;
-let currentFilter = 'all';
+let currentCampus = 'all'; // 'all', 'jiulonghu', 'dingjiaqiao', 'wuxi'
+let currentCategory = 'all'; // 'all', 'dorm', 'academic', 'ample', 'nearest'
 let deferredInstallPrompt = null;
 
-// 计算经纬度球面距离 (米)
+// 球面经纬度距离计算 (米)
 function calculateDistance(lat1, lon1, lat2, lon2) {
   const R = 6371e3;
   const φ1 = (lat1 * Math.PI) / 180;
@@ -131,36 +251,35 @@ function computeLiveStationStatus(station) {
   if (isDorm) {
     if (hour >= 22 || hour < 6) {
       baseOccupancy = 0.90;
-      prediction = "夜间充电饱和，明晨7点陆续空出";
+      prediction = "夜间充电饱和，明晨7点陆续释放";
     } else if (hour >= 6 && hour < 9) {
-      baseOccupancy = 0.70;
+      baseOccupancy = 0.68;
       prediction = "早课出发潮，插座正在逐步释放";
     } else if (hour >= 9 && hour < 17) {
-      baseOccupancy = 0.40;
+      baseOccupancy = 0.38;
       prediction = "白天余位充足，随时可以充电";
     } else if (hour >= 17 && hour < 19) {
       baseOccupancy = 0.65;
-      prediction = "晚饭高峰，晚自习前仍有空闲";
+      prediction = "晚饭高峰，建议提早占位充电";
     } else {
-      baseOccupancy = 0.85;
+      baseOccupancy = 0.84;
       const nextH = (hour + 1) % 24;
       const nextM = (minute + 15) % 60;
       prediction = `预计 ${String(nextH).padStart(2, '0')}:${String(nextM).padStart(2, '0')} 空出 ${Math.max(2, Math.floor(station.total / 25))} 个插座`;
     }
   } else {
     if (hour >= 8 && hour < 18) {
-      baseOccupancy = 0.88;
+      baseOccupancy = 0.86;
       prediction = `下课潮预计 ${String(hour).padStart(2, '0')}:45 空出 ${Math.max(3, Math.floor(station.total / 20))} 个`;
     } else if (hour >= 18 && hour < 21) {
-      baseOccupancy = 0.60;
+      baseOccupancy = 0.58;
       prediction = "晚自习时段，尚有部分插座空闲";
     } else {
-      baseOccupancy = 0.15;
+      baseOccupancy = 0.16;
       prediction = "非上课时段，插座充裕随时可用";
     }
   }
 
-  // 微调波动
   const hash = station.name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
   const minuteOffset = ((Math.floor(minute / 5) + hash + dayOfYear) % 7) - 3;
   const jitter = minuteOffset * 0.02;
@@ -208,26 +327,31 @@ function computeLiveStationStatus(station) {
 function renderApp() {
   const liveStations = STATIONS_DATA.map(computeLiveStationStatus);
 
-  // 全校统计
-  const totalSlots = liveStations.reduce((sum, s) => sum + s.total, 0);
-  const totalFree = liveStations.reduce((sum, s) => sum + s.free, 0);
-  const freePercent = Math.round((totalFree / totalSlots) * 100);
+  // 1. 过滤校区
+  let campusFiltered = liveStations;
+  if (currentCampus !== 'all') {
+    campusFiltered = campusFiltered.filter(s => s.campus === currentCampus);
+  }
+
+  // 统计概览
+  const totalSlots = campusFiltered.reduce((sum, s) => sum + s.total, 0);
+  const totalFree = campusFiltered.reduce((sum, s) => sum + s.free, 0);
+  const freePercent = totalSlots > 0 ? Math.round((totalFree / totalSlots) * 100) : 0;
 
   document.getElementById('total-free-count').innerText = totalFree;
   document.getElementById('total-capacity-count').innerText = `/ ${totalSlots} 插座`;
   document.getElementById('total-free-percent').innerText = `${freePercent}%`;
   document.getElementById('total-progress-bar').style.width = `${freePercent}%`;
 
-  // 过滤与排序
-  let filtered = [...liveStations];
-
-  if (currentFilter === 'dorm') {
+  // 2. 过滤类别
+  let filtered = [...campusFiltered];
+  if (currentCategory === 'dorm') {
     filtered = filtered.filter(s => s.zone === 'dorm');
-  } else if (currentFilter === 'academic') {
+  } else if (currentCategory === 'academic') {
     filtered = filtered.filter(s => s.zone === 'academic');
-  } else if (currentFilter === 'ample') {
+  } else if (currentCategory === 'ample') {
     filtered = filtered.filter(s => s.status === 'ample');
-  } else if (currentFilter === 'nearest') {
+  } else if (currentCategory === 'nearest') {
     if (userLocation) {
       filtered.sort((a, b) => (a.distanceMeters || 999999) - (b.distanceMeters || 999999));
     }
@@ -250,7 +374,7 @@ function renderApp() {
     card.innerHTML = `
       <div class="card-top">
         <div class="card-title-wrap">
-          <div class="station-name">${s.name} ${distHtml}</div>
+          <div class="station-name">[${s.campusName.replace("校区", "")}] ${s.name} ${distHtml}</div>
           <div class="station-subtitle">${s.desc}</div>
         </div>
         <span class="badge ${s.badgeClass}">${s.statusText}</span>
@@ -268,10 +392,9 @@ function renderApp() {
   });
 }
 
-// 模态弹窗查看车棚详情与导航
 function openStationModal(station) {
   const modal = document.getElementById('station-modal');
-  document.getElementById('modal-title').innerText = station.name;
+  document.getElementById('modal-title').innerText = `[${station.campusName}] ${station.name}`;
   document.getElementById('modal-badge').innerText = station.statusText;
   document.getElementById('modal-badge').className = `badge ${station.badgeClass}`;
   document.getElementById('modal-free-count').innerText = station.free;
@@ -281,7 +404,6 @@ function openStationModal(station) {
   document.getElementById('modal-fast').innerText = `快充插座：${station.fastFree} 个空闲 / 共 ${station.fast} 个`;
   document.getElementById('modal-slow').innerText = `慢充插座：${station.slowFree} 个空闲 / 共 ${station.slow} 个`;
 
-  // 路线导航跳转 (高德/百度 Web 坐标导航)
   const navBtn = document.getElementById('btn-navigate');
   navBtn.onclick = () => {
     const navUrl = `https://uri.amap.com/marker?position=${station.lng},${station.lat}&name=${encodeURIComponent('东南大学-' + station.name)}`;
@@ -295,7 +417,6 @@ function closeStationModal() {
   document.getElementById('station-modal').classList.remove('active');
 }
 
-// 定位获取
 function triggerGeolocation() {
   if (!navigator.geolocation) {
     alert("当前浏览器不支持地理定位");
@@ -311,45 +432,68 @@ function triggerGeolocation() {
         lng: pos.coords.longitude
       };
       locBtn.style.opacity = '1';
-      // 自动高亮并切换到离我最近 tab
-      setActiveFilter('nearest');
+
+      // 智能识别校区
+      const dDingjiaqiao = calculateDistance(userLocation.lat, userLocation.lng, 32.0782, 118.7750);
+      const dWuxi = calculateDistance(userLocation.lat, userLocation.lng, 31.4885, 120.2780);
+
+      if (dDingjiaqiao < 12000) {
+        setCampusFilter('dingjiaqiao');
+      } else if (dWuxi < 30000) {
+        setCampusFilter('wuxi');
+      } else {
+        setCampusFilter('jiulonghu');
+      }
+
+      setCategoryFilter('nearest');
     },
     (err) => {
       locBtn.style.opacity = '1';
-      alert("定位获取失败，请确保开启手机 GPS 与浏览器定位权限");
+      alert("定位获取失败，请确认浏览器定位权限已开启");
     },
     { enableHighAccuracy: true, timeout: 6000 }
   );
 }
 
-function setActiveFilter(filter) {
-  currentFilter = filter;
-  document.querySelectorAll('.filter-tab').forEach(tab => {
-    tab.classList.toggle('active', tab.dataset.filter === filter);
+function setCampusFilter(campus) {
+  currentCampus = campus;
+  document.querySelectorAll('.campus-pill').forEach(pill => {
+    pill.classList.toggle('active', pill.dataset.campus === campus);
   });
   renderApp();
 }
 
-// 初始化交互事件
+function setCategoryFilter(category) {
+  currentCategory = category;
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.filter === category);
+  });
+  renderApp();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   renderApp();
 
-  // 刷新按钮
   document.getElementById('btn-refresh').addEventListener('click', () => {
     renderApp();
   });
 
-  // 定位按钮
   document.getElementById('btn-locate').addEventListener('click', triggerGeolocation);
 
-  // Filter 切换
-  document.querySelectorAll('.filter-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      setActiveFilter(tab.dataset.filter);
+  // 校区 Pills
+  document.querySelectorAll('.campus-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      setCampusFilter(pill.dataset.campus);
     });
   });
 
-  // 模态弹窗点击遮罩关闭
+  // 分类 Tabs
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      setCategoryFilter(tab.dataset.filter);
+    });
+  });
+
   const modal = document.getElementById('station-modal');
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
@@ -357,7 +501,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // PWA 安装引导
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
@@ -378,12 +521,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 注册 Service Worker (Network-First)
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').then((reg) => {
-      console.log('SEU Charging PWA Service Worker Registered:', reg.scope);
-    }).catch((err) => {
-      console.warn('SW registration failed:', err);
-    });
+      console.log('SEU Charging SW Registered:', reg.scope);
+    }).catch(console.warn);
   }
 });

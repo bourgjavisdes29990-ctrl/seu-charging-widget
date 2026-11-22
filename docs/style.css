@@ -143,6 +143,57 @@ header {
   fill: currentColor;
 }
 
+/* Source Attribution Banner */
+.source-banner {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px dashed rgba(56, 189, 248, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 0.74rem;
+  color: var(--text-sub);
+}
+
+.source-banner a {
+  color: var(--accent-cyan);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Campus Pills Row */
+.campus-pills-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.campus-pills-row::-webkit-scrollbar {
+  display: none;
+}
+
+.campus-pill {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-sub);
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.campus-pill.active {
+  background: #1d4ed8;
+  border-color: #3b82f6;
+  color: var(--text-main);
+}
+
 /* PWA Banner */
 .pwa-install-banner {
   background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(6, 182, 212, 0.15));

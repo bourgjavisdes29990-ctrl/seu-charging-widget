@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">东大电桩</string>
     <string name="widget_name">东大充电桩小组件 (4x2)</string>
-    <string name="widget_title">东南大学·九龙湖电桩</string>
-    <string name="btn_web">全校电桩 🌐</string>
+    <string name="widget_title">东南大学·校内电桩</string>
+    <string name="btn_web">全校看板 🌐</string>
     <string name="btn_switch_next">🔄 换车棚</string>
     <string name="btn_auto_loc">📍 离我最近</string>
     <string name="btn_refresh">⚡ 刷新</string>
@@ -11,5 +11,13 @@
     <string name="status_moderate">紧张</string>
     <string name="status_full">满位</string>
     <string name="free_socket_suffix">空闲插座</string>
-    <string name="pwa_url">https://seu-charging.github.io</string>
+
+    <string name="campus_jiulonghu">九龙湖校区</string>
+    <string name="campus_dingjiaqiao">丁家桥校区</string>
+    <string name="campus_wuxi">无锡校区</string>
+
+    <!-- 引用开源项目与网页端服务 -->
+    <string name="pwa_url">https://chargers.dpdns.org/status</string>
+    <string name="dpdns_status_url">https://chargers.dpdns.org/status</string>
+    <string name="github_repo_url">https://github.com/Golevka2001/Where-Are-Available-Chargers</string>
 </resources>

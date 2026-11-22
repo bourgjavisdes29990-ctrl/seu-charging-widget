@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>东南大学充电桩实时看板 | 九龙湖校区</title>
+  <title>东南大学充电桩实时看板 | 九龙湖·丁家桥·无锡</title>
   
   <!-- PWA Meta -->
   <link rel="manifest" href="./manifest.json">
@@ -27,8 +27,8 @@
           <svg viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.31.68L11 21z"/></svg>
         </div>
         <div class="brand-info">
-          <h1>东南大学 · 九龙湖电桩</h1>
-          <p>电动自行车充电桩空闲实时监测</p>
+          <h1>东南大学 · 校内电桩</h1>
+          <p>九龙湖 · 丁家桥 · 无锡校区实时监测</p>
         </div>
       </div>
 
@@ -42,6 +42,11 @@
       </div>
     </header>
 
+    <!-- Source Attribution Banner -->
+    <div class="source-banner">
+      <span>🔗 数据源参考：<a href="https://chargers.dpdns.org/status" target="_blank" rel="noopener">Where Are Available Chargers?! (chargers.dpdns.org)</a></span>
+    </div>
+
     <!-- PWA Install Banner -->
     <div id="pwa-banner" class="pwa-install-banner" style="display: none;">
       <div class="pwa-banner-text">
@@ -50,14 +55,22 @@
       <button id="btn-install-pwa" class="install-btn">立即添加</button>
     </div>
 
+    <!-- Campus Filter Pills -->
+    <div class="campus-pills-row">
+      <button class="campus-pill active" data-campus="all">全部校区</button>
+      <button class="campus-pill" data-campus="jiulonghu">九龙湖校区</button>
+      <button class="campus-pill" data-campus="dingjiaqiao">丁家桥校区</button>
+      <button class="campus-pill" data-campus="wuxi">无锡校区</button>
+    </div>
+
     <!-- Campus Total Stats Card -->
     <section class="hero-card">
       <div class="hero-header">
         <div class="hero-title">
           <span class="pulse-dot"></span>
-          <span>全校电桩实时总览 (九龙湖)</span>
+          <span>当前校区电桩实时总览</span>
         </div>
-        <span style="font-size:0.75rem; color:#94a3b8;">动态监测中</span>
+        <span style="font-size:0.75rem; color:#94a3b8;">动态同步中</span>
       </div>
       <div class="hero-stats-row">
         <div class="hero-number-wrap">
@@ -65,7 +78,7 @@
           <span id="total-capacity-count" class="hero-number-label">/ -- 插座</span>
         </div>
         <div class="hero-rates">
-          <div>全校空闲率 <span id="total-free-percent" class="rate-highlight">--%</span></div>
+          <div>校区空闲率 <span id="total-free-percent" class="rate-highlight">--%</span></div>
           <div style="font-size:0.72rem; color:#64748b; margin-top:2px;">含快充与慢充插座</div>
         </div>
       </div>
@@ -76,7 +89,7 @@
 
     <!-- Category Filter Tabs -->
     <nav class="filter-scroll">
-      <button class="filter-tab active" data-filter="all">全部车棚 (8)</button>
+      <button class="filter-tab active" data-filter="all">全部车棚</button>
       <button class="filter-tab" data-filter="dorm">宿舍生活区</button>
       <button class="filter-tab" data-filter="academic">教学科研区</button>
       <button class="filter-tab" data-filter="ample">余位充裕</button>
@@ -90,8 +103,9 @@
 
     <!-- Footer & Campus Safety Note -->
     <footer>
-      <p>东南大学九龙湖校区 · 电动车智能充电监测看板</p>
-      <p style="margin-top: 4px;">⚠️ 校园消防安全提示：严禁将电瓶带入宿舍室内充电，充满请及时拔电移车。</p>
+      <p>东南大学九龙湖 · 丁家桥 · 无锡校区电动车充电桩监测看板</p>
+      <p style="margin-top: 4px;">鸣谢开源项目：<a href="https://github.com/Golevka2001/Where-Are-Available-Chargers" target="_blank" rel="noopener" style="color:#38bdf8;text-decoration:none;">Golevka2001/Where-Are-Available-Chargers</a></p>
+      <p style="margin-top: 4px; color:#ef4444;">⚠️ 校园消防安全警示：严禁将电瓶带入宿舍室内充电，充满请及时拔电移车。</p>
     </footer>
   </div>
 
