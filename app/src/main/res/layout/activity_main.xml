@@ -43,7 +43,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="九龙湖 · 丁家桥 · 无锡校区实时监测"
+                    android:text="九龙湖校区电桩实时监测 · 校医院 1# / 9# 桩特别关注"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -130,7 +130,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="📍 智能多校区被动感知"
+                    android:text="📍 智能位置感知"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -140,7 +140,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="小组件将根据你的地理位置，智能感知你身在九龙湖、丁家桥还是无锡校区，并自动匹配最近的车棚。"
+                    android:text="小组件将根据你的地理位置，智能感知九龙湖校区距离你最近的车棚；默认锁定校医院充电桩。"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
@@ -174,53 +174,34 @@
             <include layout="@layout/widget_charging_4x2" />
         </FrameLayout>
 
-        <!-- Campus Selector Tabs -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            android:text="🏫 选择校区查看车棚列表"
-            android:textColor="@color/text_primary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
+        <!-- Jiulonghu Campus Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="22dp"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/tab_jiulonghu"
+            <TextView
                 android:layout_width="0dp"
-                android:layout_height="38dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:backgroundTint="@color/btn_accent_bg"
-                android:text="九龙湖校区"
+                android:text="🏫 九龙湖校区车棚列表"
                 android:textColor="@color/text_primary"
-                android:textSize="12sp" />
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/tab_dingjiaqiao"
-                android:layout_width="0dp"
-                android:layout_height="38dp"
-                android:layout_marginStart="6dp"
-                android:layout_weight="1"
-                android:backgroundTint="@color/btn_pill_stroke"
-                android:text="丁家桥校区"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/tab_wuxi"
-                android:layout_width="0dp"
-                android:layout_height="38dp"
-                android:layout_marginStart="6dp"
-                android:layout_weight="1"
-                android:backgroundTint="@color/btn_pill_stroke"
-                android:text="无锡校区"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_pill_button"
+                android:paddingStart="8dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="2dp"
+                android:text="⭐ 校医院置顶"
+                android:textColor="@color/accent_cyan"
+                android:textSize="11sp" />
         </LinearLayout>
 
         <!-- Stations List Container -->

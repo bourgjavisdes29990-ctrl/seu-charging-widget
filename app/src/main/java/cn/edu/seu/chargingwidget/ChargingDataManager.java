@@ -70,41 +70,25 @@ public class ChargingDataManager {
     private void initStations() {
         allStations.clear();
 
-        // 1. 九龙湖校区 (Jiulonghu Campus)
+        // 东南大学九龙湖校区核心电桩（默认首位：校医院充电桩，关注 1#、9#）
+        allStations.add(new ChargingStation(ChargingStation.ID_HOSPITAL, "校医院充电桩", "校医院",
+                31.8950, 118.8180, 20, 4, 16));
         allStations.add(new ChargingStation("taoyuan", "桃园生活区车棚", "桃园车棚",
-                ChargingStation.CAMPUS_JIULONGHU, "九龙湖校区", 31.8892, 118.8235, 140, 40, 100));
+                31.8892, 118.8235, 140, 40, 100));
         allStations.add(new ChargingStation("juyuan", "橘园生活区车棚", "橘园车棚",
-                ChargingStation.CAMPUS_JIULONGHU, "九龙湖校区", 31.8848, 118.8142, 160, 40, 120));
+                31.8848, 118.8142, 160, 40, 120));
         allStations.add(new ChargingStation("meiyuan", "梅园生活区车棚", "梅园车棚",
-                ChargingStation.CAMPUS_JIULONGHU, "九龙湖校区", 31.8925, 118.8208, 110, 30, 80));
+                31.8925, 118.8208, 110, 30, 80));
         allStations.add(new ChargingStation("lantai", "兰台研究生公寓充电区", "兰台公寓",
-                ChargingStation.CAMPUS_JIULONGHU, "九龙湖校区", 31.8950, 118.8180, 90, 20, 70));
+                31.8950, 118.8180, 90, 20, 70));
         allStations.add(new ChargingStation("jizhong", "纪忠楼/文科综合楼充电点", "纪忠楼",
-                ChargingStation.CAMPUS_JIULONGHU, "九龙湖校区", 31.8872, 118.8256, 60, 15, 45));
+                31.8872, 118.8256, 60, 15, 45));
         allStations.add(new ChargingStation("bldg8", "教学八线/工科大楼充电点", "教八大楼",
-                ChargingStation.CAMPUS_JIULONGHU, "九龙湖校区", 31.8845, 118.8215, 75, 15, 60));
+                31.8845, 118.8215, 75, 15, 60));
         allStations.add(new ChargingStation("student_center", "大学生活动中心/焦廷标馆", "大活中心",
-                ChargingStation.CAMPUS_JIULONGHU, "九龙湖校区", 31.8875, 118.8188, 50, 15, 35));
+                31.8875, 118.8188, 50, 15, 35));
         allStations.add(new ChargingStation("cs_bldg", "计算机/人工智能学院大楼", "计算机系",
-                ChargingStation.CAMPUS_JIULONGHU, "九龙湖校区", 31.8825, 118.8185, 45, 15, 30));
-
-        // 2. 丁家桥校区 (Dingjiaqiao Campus)
-        allStations.add(new ChargingStation("djq_dorm", "丁家桥学生公寓车棚", "公寓车棚",
-                ChargingStation.CAMPUS_DINGJIAQIAO, "丁家桥校区", 32.0782, 118.7750, 80, 20, 60));
-        allStations.add(new ChargingStation("djq_med", "医学院综合教学楼充电点", "医学院楼",
-                ChargingStation.CAMPUS_DINGJIAQIAO, "丁家桥校区", 32.0795, 118.7765, 60, 15, 45));
-        allStations.add(new ChargingStation("djq_health", "公共卫生学院实验楼车棚", "公卫大楼",
-                ChargingStation.CAMPUS_DINGJIAQIAO, "丁家桥校区", 32.0768, 118.7735, 50, 10, 40));
-        allStations.add(new ChargingStation("djq_intl", "丁家桥留学生公寓充电区", "留学生公寓",
-                ChargingStation.CAMPUS_DINGJIAQIAO, "丁家桥校区", 32.0775, 118.7745, 40, 10, 30));
-
-        // 3. 无锡校区 (Wuxi Campus)
-        allStations.add(new ChargingStation("wx_dorm", "无锡校区学生公寓车棚", "学生公寓",
-                ChargingStation.CAMPUS_WUXI, "无锡校区", 31.4885, 120.2780, 100, 30, 70));
-        allStations.add(new ChargingStation("wx_nano", "集成电路与微纳大楼充电点", "微纳大楼",
-                ChargingStation.CAMPUS_WUXI, "无锡校区", 31.4902, 120.2805, 60, 15, 45));
-        allStations.add(new ChargingStation("wx_res", "产业研综合科研楼车棚", "产研大楼",
-                ChargingStation.CAMPUS_WUXI, "无锡校区", 31.4868, 120.2755, 50, 10, 40));
+                31.8825, 118.8185, 45, 15, 30));
     }
 
     public String getCurrentCampus() {
@@ -161,18 +145,12 @@ public class ChargingDataManager {
         updateStationDistances(passiveLoc);
 
         if (!isManualLocked && isAutoLocate && passiveLoc != null) {
-            // 智能识别当前身处哪个校区（九龙湖 / 丁家桥 / 无锡）
-            String detectedCampus = detectNearestCampus(passiveLoc);
-            if (detectedCampus != null) {
-                setCurrentCampus(detectedCampus);
-            }
-
-            ChargingStation nearest = findNearestStationInCampus(getCurrentCampus());
+            ChargingStation nearest = findNearestStationInCampus(ChargingStation.CAMPUS_JIULONGHU);
             if (nearest != null) {
                 if (nearest.getDistanceMeters() >= 0 && nearest.getDistanceMeters() <= 3000) {
                     saveCurrentStationId(nearest.getId());
                     int dist = Math.round(nearest.getDistanceMeters());
-                    String modeTag = "📍 " + nearest.getCampusName().replace("校区", "");
+                    String modeTag = nearest.isFavoriteStation() ? "⭐ 常用" : "📍 自动";
                     String distText = dist < 1000 ? String.format(Locale.CHINA, " · 距你 %dm", dist)
                             : String.format(Locale.CHINA, " · 距你 %.1fkm", dist / 1000f);
                     return new StationDisplayResult(nearest, modeTag, distText, true);
@@ -180,10 +158,10 @@ public class ChargingDataManager {
             }
         }
 
-        // 手动模式或超出定位感知范围
-        String savedId = sp.getString(KEY_CURRENT_STATION_ID, allStations.get(0).getId());
+        // 手动模式或超出定位感知范围（默认首选校医院）
+        String savedId = sp.getString(KEY_CURRENT_STATION_ID, ChargingStation.ID_HOSPITAL);
         ChargingStation current = getStationById(savedId);
-        String modeTag = isManualLocked ? "👤 " + current.getCampusName().replace("校区", "") : "📍 默认";
+        String modeTag = isManualLocked ? "👤 手动" : (current.isFavoriteStation() ? "⭐ 常用" : "📍 默认");
         String distText = "";
         if (current.getDistanceMeters() >= 0) {
             int dist = Math.round(current.getDistanceMeters());
@@ -199,21 +177,17 @@ public class ChargingDataManager {
      */
     public ChargingStation switchToNextStation() {
         SharedPreferences sp = appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        String currentCampus = getCurrentCampus();
-        List<ChargingStation> campusStations = getStationsByCampus(currentCampus);
-        if (campusStations.isEmpty()) campusStations = allStations;
-
-        String currentId = sp.getString(KEY_CURRENT_STATION_ID, campusStations.get(0).getId());
+        String currentId = sp.getString(KEY_CURRENT_STATION_ID, ChargingStation.ID_HOSPITAL);
 
         int currentIndex = 0;
-        for (int i = 0; i < campusStations.size(); i++) {
-            if (campusStations.get(i).getId().equals(currentId)) {
+        for (int i = 0; i < allStations.size(); i++) {
+            if (allStations.get(i).getId().equals(currentId)) {
                 currentIndex = i;
                 break;
             }
         }
-        int nextIndex = (currentIndex + 1) % campusStations.size();
-        ChargingStation next = campusStations.get(nextIndex);
+        int nextIndex = (currentIndex + 1) % allStations.size();
+        ChargingStation next = allStations.get(nextIndex);
 
         sp.edit()
                 .putString(KEY_CURRENT_STATION_ID, next.getId())
@@ -309,7 +283,6 @@ public class ChargingDataManager {
         ChargingStation nearest = null;
         float minDistance = Float.MAX_VALUE;
         for (ChargingStation s : allStations) {
-            if (!s.getCampus().equals(campus)) continue;
             if (s.getDistanceMeters() >= 0 && s.getDistanceMeters() < minDistance) {
                 minDistance = s.getDistanceMeters();
                 nearest = s;
@@ -472,6 +445,24 @@ public class ChargingDataManager {
             s.setFreeFastSockets(fastRatio);
             s.setFreeSlowSockets(slowRatio);
             s.setTrendPrediction(prediction);
+
+            if (s.isFavoriteStation()) {
+                // 校医院重点关注：1# 和 9# 桩动态状态推算
+                if (free >= 6) {
+                    s.setPile1Free(true);
+                    s.setPile9Free(true);
+                } else if (free >= 2) {
+                    boolean p1 = (minute % 2 == 0);
+                    s.setPile1Free(p1);
+                    s.setPile9Free(!p1);
+                } else if (free == 1) {
+                    s.setPile1Free(minute % 3 == 0);
+                    s.setPile9Free(false);
+                } else {
+                    s.setPile1Free(false);
+                    s.setPile9Free(false);
+                }
+            }
         }
     }
 

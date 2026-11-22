@@ -46,15 +46,15 @@ jobs:
       - name: Build APK with Gradle
         run: ./gradlew assembleDebug --no-daemon
 
-      # 归档产物并重命名为 seu-charging-widget-v1.0.apk
+      # 归档产物并重命名为 seu-charging-widget-v1.1.apk
       - name: Prepare Artifact
         run: |
           mkdir -p build-output
-          cp app/build/outputs/apk/debug/*.apk build-output/seu-charging-widget-v1.0.apk
+          cp app/build/outputs/apk/debug/*.apk build-output/seu-charging-widget-v1.1.apk
 
       - name: Upload APK to Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: seu-charging-widget-v1.0
-          path: build-output/seu-charging-widget-v1.0.apk
+          name: seu-charging-widget-v1.1
+          path: build-output/seu-charging-widget-v1.1.apk
           if-no-files-found: error

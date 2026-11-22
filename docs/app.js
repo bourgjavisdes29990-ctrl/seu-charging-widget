@@ -1,6 +1,21 @@
-// 东南大学九龙湖/丁家桥/无锡校区电动车充电桩 PWA (参考 Golevka2001/Where-Are-Available-Chargers)
+// 东南大学九龙湖校区电动车充电桩 PWA (参考 Golevka2001/Where-Are-Available-Chargers)
 const STATIONS_DATA = [
-  // 1. 九龙湖校区 (Jiulonghu)
+  // 东南大学九龙湖校区电桩列表（默认首选：校医院充电桩）
+  {
+    id: "hospital",
+    name: "校医院充电桩",
+    shortName: "校医院",
+    campus: "jiulonghu",
+    campusName: "九龙湖校区",
+    zone: "academic",
+    lat: 31.8950,
+    lng: 118.8180,
+    total: 20,
+    fast: 4,
+    slow: 16,
+    isFavorite: true,
+    desc: "校医院西侧车棚，常充专属重点监测 1# 与 9# 桩位"
+  },
   {
     id: "taoyuan",
     name: "桃园生活区车棚",
@@ -112,108 +127,6 @@ const STATIONS_DATA = [
     fast: 15,
     slow: 30,
     desc: "计算机科学与工程学院、人工智能学院大楼北侧车棚"
-  },
-
-  // 2. 丁家桥校区 (Dingjiaqiao)
-  {
-    id: "djq_dorm",
-    name: "丁家桥学生公寓车棚",
-    shortName: "公寓车棚",
-    campus: "dingjiaqiao",
-    campusName: "丁家桥校区",
-    zone: "dorm",
-    lat: 32.0782,
-    lng: 118.7750,
-    total: 80,
-    fast: 20,
-    slow: 60,
-    desc: "丁家桥学生宿舍区、食堂与主干道交界处"
-  },
-  {
-    id: "djq_med",
-    name: "医学院综合教学楼充电点",
-    shortName: "医学院楼",
-    campus: "dingjiaqiao",
-    campusName: "丁家桥校区",
-    zone: "academic",
-    lat: 32.0795,
-    lng: 118.7765,
-    total: 60,
-    fast: 15,
-    slow: 45,
-    desc: "医学院基建楼、综合实验教学大楼旁"
-  },
-  {
-    id: "djq_health",
-    name: "公共卫生学院实验楼车棚",
-    shortName: "公卫大楼",
-    campus: "dingjiaqiao",
-    campusName: "丁家桥校区",
-    zone: "academic",
-    lat: 32.0768,
-    lng: 118.7735,
-    total: 50,
-    fast: 10,
-    slow: 40,
-    desc: "公共卫生学院大楼西侧"
-  },
-  {
-    id: "djq_intl",
-    name: "丁家桥留学生公寓充电区",
-    shortName: "留学生公寓",
-    campus: "dingjiaqiao",
-    campusName: "丁家桥校区",
-    zone: "dorm",
-    lat: 32.0775,
-    lng: 118.7745,
-    total: 40,
-    fast: 10,
-    slow: 30,
-    desc: "丁家桥留学生公寓楼下专用充电区"
-  },
-
-  // 3. 无锡校区 (Wuxi)
-  {
-    id: "wx_dorm",
-    name: "无锡校区学生公寓车棚",
-    shortName: "学生公寓",
-    campus: "wuxi",
-    campusName: "无锡校区",
-    zone: "dorm",
-    lat: 31.4885,
-    lng: 120.2780,
-    total: 100,
-    fast: 30,
-    slow: 70,
-    desc: "无锡分校学生宿舍区、食堂后侧"
-  },
-  {
-    id: "wx_nano",
-    name: "集成电路与微纳大楼充电点",
-    shortName: "微纳大楼",
-    campus: "wuxi",
-    campusName: "无锡校区",
-    zone: "academic",
-    lat: 31.4902,
-    lng: 120.2805,
-    total: 60,
-    fast: 15,
-    slow: 45,
-    desc: "集成电路学院、微纳制造科研大楼旁"
-  },
-  {
-    id: "wx_res",
-    name: "产业研综合科研楼车棚",
-    shortName: "产研大楼",
-    campus: "wuxi",
-    campusName: "无锡校区",
-    zone: "academic",
-    lat: 31.4868,
-    lng: 120.2755,
-    total: 50,
-    fast: 10,
-    slow: 40,
-    desc: "无锡产学研综合大楼、行政办公楼西侧"
   }
 ];
 
@@ -310,6 +223,24 @@ function computeLiveStationStatus(station) {
     dist = calculateDistance(userLocation.lat, userLocation.lng, station.lat, station.lng);
   }
 
+  let pile1Free = true;
+  let pile9Free = false;
+  if (station.id === 'hospital') {
+    if (free >= 6) {
+      pile1Free = true;
+      pile9Free = true;
+    } else if (free >= 2) {
+      pile1Free = (minute % 2 === 0);
+      pile9Free = !pile1Free;
+    } else if (free === 1) {
+      pile1Free = (minute % 3 === 0);
+      pile9Free = false;
+    } else {
+      pile1Free = false;
+      pile9Free = false;
+    }
+  }
+
   return {
     ...station,
     free,
@@ -319,7 +250,9 @@ function computeLiveStationStatus(station) {
     statusText,
     badgeClass,
     prediction,
-    distanceMeters: dist
+    distanceMeters: dist,
+    pile1Free,
+    pile9Free
   };
 }
 
@@ -371,10 +304,15 @@ function renderApp() {
       distHtml = `<span style="color:#38bdf8;margin-left:4px;">· 距你 ${d < 1000 ? d + 'm' : (d / 1000).toFixed(1) + 'km'}</span>`;
     }
 
+    const breakdownHtml = s.id === 'hospital'
+      ? `<span style="color:#38bdf8;font-weight:600;">⭐ 常充关注: 1# ${s.pile1Free ? '🟢空闲' : '🔴在用'} · 9# ${s.pile9Free ? '🟢空闲' : '🔴在用'}</span>`
+      : `⚡ 快充 ${s.fastFree}/${s.fast} · 慢充 ${s.slowFree}/${s.slow}`;
+    const stationTitle = s.id === 'hospital' ? `⭐ ${s.name}` : s.name;
+
     card.innerHTML = `
       <div class="card-top">
         <div class="card-title-wrap">
-          <div class="station-name">[${s.campusName.replace("校区", "")}] ${s.name} ${distHtml}</div>
+          <div class="station-name">${stationTitle} ${distHtml}</div>
           <div class="station-subtitle">${s.desc}</div>
         </div>
         <span class="badge ${s.badgeClass}">${s.statusText}</span>
@@ -384,7 +322,7 @@ function renderApp() {
         <span class="card-total-desc">/ ${s.total} 空闲插座</span>
       </div>
       <div class="card-sub-info">
-        <span class="card-breakdown">⚡ 快充 ${s.fastFree}/${s.fast} · 慢充 ${s.slowFree}/${s.slow}</span>
+        <span class="card-breakdown">${breakdownHtml}</span>
         <span class="card-prediction">${s.prediction}</span>
       </div>
     `;
@@ -394,12 +332,17 @@ function renderApp() {
 
 function openStationModal(station) {
   const modal = document.getElementById('station-modal');
-  document.getElementById('modal-title').innerText = `[${station.campusName}] ${station.name}`;
+  document.getElementById('modal-title').innerText = station.id === 'hospital' ? `⭐ ${station.name}` : station.name;
   document.getElementById('modal-badge').innerText = station.statusText;
   document.getElementById('modal-badge').className = `badge ${station.badgeClass}`;
   document.getElementById('modal-free-count').innerText = station.free;
   document.getElementById('modal-total-count').innerText = `/ ${station.total} 空闲插座`;
-  document.getElementById('modal-desc').innerText = station.desc;
+  
+  if (station.id === 'hospital') {
+    document.getElementById('modal-desc').innerHTML = `${station.desc}<br><br><strong style="color:#38bdf8;">⭐ 重点桩位实时状态：</strong><br>1# 桩：${station.pile1Free ? '🟢 空闲可用' : '🔴 正在充电'}<br>9# 桩：${station.pile9Free ? '🟢 空闲可用' : '🔴 正在充电'}`;
+  } else {
+    document.getElementById('modal-desc').innerText = station.desc;
+  }
   document.getElementById('modal-prediction').innerText = station.prediction;
   document.getElementById('modal-fast').innerText = `快充插座：${station.fastFree} 个空闲 / 共 ${station.fast} 个`;
   document.getElementById('modal-slow').innerText = `慢充插座：${station.slowFree} 个空闲 / 共 ${station.slow} 个`;

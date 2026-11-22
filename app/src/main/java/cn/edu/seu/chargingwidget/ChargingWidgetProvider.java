@@ -84,8 +84,8 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
             );
             views.setOnClickPendingIntent(R.id.btn_web, webPendingIntent);
 
-            // 3. 车棚名称（带校区前缀）与距离提示
-            String displayName = "[" + station.getCampusName().replace("校区", "") + "] " + station.getName();
+            // 3. 车棚名称与距离提示
+            String displayName = station.isFavoriteStation() ? "⭐ " + station.getName() : station.getName();
             views.setTextViewText(R.id.tv_station_name, displayName);
             views.setTextViewText(R.id.tv_distance_info, result.distanceText);
 
@@ -113,11 +113,16 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
             views.setTextViewText(R.id.tv_free_count, String.valueOf(station.getFreeSockets()));
             views.setTextViewText(R.id.tv_total_suffix, "/ " + station.getTotalSockets() + " 空闲");
 
-            // 6. 细分快慢充配比与趋势
-            String breakdownStr = String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
-                    station.getFreeFastSockets(), station.getFastSockets(),
-                    station.getFreeSlowSockets(), station.getSlowSockets(),
-                    station.getInUseSockets());
+            // 6. 细分快慢充配比与趋势（校医院重点展示 1# 与 9# 桩位）
+            String breakdownStr;
+            if (station.isFavoriteStation()) {
+                breakdownStr = station.getPilesFocusSummary();
+            } else {
+                breakdownStr = String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
+                        station.getFreeFastSockets(), station.getFastSockets(),
+                        station.getFreeSlowSockets(), station.getSlowSockets(),
+                        station.getInUseSockets());
+            }
             views.setTextViewText(R.id.tv_breakdown, breakdownStr);
             views.setTextViewText(R.id.tv_trend_prediction, station.getTrendPrediction());
 

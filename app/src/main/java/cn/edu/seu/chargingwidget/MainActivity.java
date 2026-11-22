@@ -30,9 +30,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvPermStatus;
     private TextView tvSyncStatus;
     private Button btnSyncRemote;
-    private Button tabJiulonghu;
-    private Button tabDingjiaqiao;
-    private Button tabWuxi;
     private LinearLayout layoutStationsList;
     private View widgetPreviewRoot;
 
@@ -60,9 +57,6 @@ public class MainActivity extends AppCompatActivity {
         tvPermStatus = findViewById(R.id.tv_perm_status);
         tvSyncStatus = findViewById(R.id.tv_sync_status);
         btnSyncRemote = findViewById(R.id.btn_sync_remote);
-        tabJiulonghu = findViewById(R.id.tab_jiulonghu);
-        tabDingjiaqiao = findViewById(R.id.tab_dingjiaqiao);
-        tabWuxi = findViewById(R.id.tab_wuxi);
         layoutStationsList = findViewById(R.id.layout_stations_list);
         widgetPreviewRoot = findViewById(R.id.widget_preview_container);
 
@@ -95,11 +89,6 @@ public class MainActivity extends AppCompatActivity {
             String url = getString(R.string.github_repo_url);
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
         });
-
-        // 校区 Tab 切换
-        tabJiulonghu.setOnClickListener(v -> selectCampus(ChargingStation.CAMPUS_JIULONGHU));
-        tabDingjiaqiao.setOnClickListener(v -> selectCampus(ChargingStation.CAMPUS_DINGJIAQIAO));
-        tabWuxi.setOnClickListener(v -> selectCampus(ChargingStation.CAMPUS_WUXI));
 
         // 小组件预览交互
         if (widgetPreviewRoot != null) {
@@ -141,38 +130,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void selectCampus(String campus) {
-        this.selectedCampus = campus;
-        ChargingDataManager.getInstance(this).setCurrentCampus(campus);
-
-        int activeBg = ContextCompat.getColor(this, R.color.btn_accent_bg);
-        int inactiveBg = ContextCompat.getColor(this, R.color.btn_pill_stroke);
-        int activeText = ContextCompat.getColor(this, R.color.text_primary);
-        int inactiveText = ContextCompat.getColor(this, R.color.text_secondary);
-
-        tabJiulonghu.setBackgroundColor(campus.equals(ChargingStation.CAMPUS_JIULONGHU) ? activeBg : inactiveBg);
-        tabJiulonghu.setTextColor(campus.equals(ChargingStation.CAMPUS_JIULONGHU) ? activeText : inactiveText);
-
-        tabDingjiaqiao.setBackgroundColor(campus.equals(ChargingStation.CAMPUS_DINGJIAQIAO) ? activeBg : inactiveBg);
-        tabDingjiaqiao.setTextColor(campus.equals(ChargingStation.CAMPUS_DINGJIAQIAO) ? activeText : inactiveText);
-
-        tabWuxi.setBackgroundColor(campus.equals(ChargingStation.CAMPUS_WUXI) ? activeBg : inactiveBg);
-        tabWuxi.setTextColor(campus.equals(ChargingStation.CAMPUS_WUXI) ? activeText : inactiveText);
-
-        refreshPreviewAndList();
-        notifyWidgetUpdate();
-    }
-
     private void checkLocationPermissionState() {
         boolean hasFine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         boolean hasCoarse = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
         if (hasFine || hasCoarse) {
-            tvPermStatus.setText("✅ 已获定位权限：在九龙湖、丁家桥或无锡校区时，将自动定位切换至对应校区与最近车棚。");
+            tvPermStatus.setText("✅ 已获定位权限：在九龙湖校区内将自动为你匹配距离最近的车棚。");
             tvPermStatus.setTextColor(ContextCompat.getColor(this, R.color.status_green_text));
             btnGrantPermission.setVisibility(View.GONE);
         } else {
-            tvPermStatus.setText("⚠️ 尚未授予定位权限：无法自动感知校区与最近车棚，小组件将显示默认校区车棚。");
+            tvPermStatus.setText("⚠️ 尚未授予定位权限：将始终为你优先展示默认的校医院充电桩。");
             tvPermStatus.setTextColor(ContextCompat.getColor(this, R.color.status_yellow_text));
             btnGrantPermission.setVisibility(View.VISIBLE);
         }
@@ -215,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (tvMode != null) tvMode.setText(result.modeTag);
             if (tvName != null) {
-                String title = "[" + currentStation.getCampusName().replace("校区", "") + "] " + currentStation.getName();
+                String title = currentStation.isFavoriteStation() ? "⭐ " + currentStation.getName() : currentStation.getName();
                 tvName.setText(title);
             }
             if (tvDist != null) tvDist.setText(result.distanceText);
@@ -244,10 +211,14 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (tvBreakdown != null) {
-                tvBreakdown.setText(String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
-                        currentStation.getFreeFastSockets(), currentStation.getFastSockets(),
-                        currentStation.getFreeSlowSockets(), currentStation.getSlowSockets(),
-                        currentStation.getInUseSockets()));
+                if (currentStation.isFavoriteStation()) {
+                    tvBreakdown.setText(currentStation.getPilesFocusSummary());
+                } else {
+                    tvBreakdown.setText(String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
+                            currentStation.getFreeFastSockets(), currentStation.getFastSockets(),
+                            currentStation.getFreeSlowSockets(), currentStation.getSlowSockets(),
+                            currentStation.getInUseSockets()));
+                }
             }
 
             if (tvTrend != null) tvTrend.setText(currentStation.getTrendPrediction());
@@ -258,9 +229,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        // 2. 刷新选定校区列表
+        // 2. 刷新九龙湖校区电桩列表
         layoutStationsList.removeAllViews();
-        List<ChargingStation> campusStations = dataManager.getStationsByCampus(selectedCampus);
+        List<ChargingStation> campusStations = dataManager.getAllStations();
 
         for (ChargingStation s : campusStations) {
             View itemView = LayoutInflater.from(this).inflate(R.layout.widget_charging_4x2, layoutStationsList, false);
@@ -281,7 +252,9 @@ public class MainActivity extends AppCompatActivity {
             TextView tvTrend = itemView.findViewById(R.id.tv_trend_prediction);
 
             if (tvMode != null) tvMode.setVisibility(View.GONE);
-            if (tvName != null) tvName.setText(s.getName());
+            if (tvName != null) {
+                tvName.setText(s.isFavoriteStation() ? "⭐ " + s.getName() : s.getName());
+            }
             if (tvDist != null) {
                 if (s.getDistanceMeters() >= 0) {
                     int d = Math.round(s.getDistanceMeters());
@@ -317,10 +290,14 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (tvBreakdown != null) {
-                tvBreakdown.setText(String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
-                        s.getFreeFastSockets(), s.getFastSockets(),
-                        s.getFreeSlowSockets(), s.getSlowSockets(),
-                        s.getInUseSockets()));
+                if (s.isFavoriteStation()) {
+                    tvBreakdown.setText(s.getPilesFocusSummary());
+                } else {
+                    tvBreakdown.setText(String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
+                            s.getFreeFastSockets(), s.getFastSockets(),
+                            s.getFreeSlowSockets(), s.getSlowSockets(),
+                            s.getInUseSockets()));
+                }
             }
             if (tvTrend != null) tvTrend.setText(s.getTrendPrediction());
 
