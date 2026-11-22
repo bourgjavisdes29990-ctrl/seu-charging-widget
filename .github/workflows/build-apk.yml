@@ -33,7 +33,7 @@ jobs:
             curl -sLo gradle/wrapper/gradle-wrapper.jar https://repo.maven.apache.org/maven2/org/gradle/gradle-wrapper/8.2/gradle-wrapper-8.2.jar
           fi
 
-      # 自动通过 Android SDK 许可
+      # 自动通过 Android SDK 许可并补齐 Android 33 编译工具链
       - name: Accept Android SDK Licenses
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
@@ -42,9 +42,9 @@ jobs:
       - name: Grant Execute Permission to gradlew
         run: chmod +x gradlew
 
-      # 编译 Debug APK
+      # 编译 Debug APK（关闭 daemon 确保稳定）
       - name: Build APK with Gradle
-        run: ./gradlew assembleDebug --stacktrace --no-daemon
+        run: ./gradlew assembleDebug --no-daemon
 
       # 归档产物并重命名为 seu-charging-widget-v1.0.apk
       - name: Prepare Artifact

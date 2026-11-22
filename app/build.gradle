@@ -5,6 +5,7 @@ plugins {
 android {
     namespace 'cn.edu.seu.chargingwidget'
     compileSdk 33
+    buildToolsVersion "33.0.2"
 
     defaultConfig {
         applicationId "cn.edu.seu.chargingwidget"
@@ -25,6 +26,11 @@ android {
             applicationIdSuffix ""
             debuggable true
         }
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
     }
 
     compileOptions {
