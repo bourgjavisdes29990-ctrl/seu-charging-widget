@@ -70,9 +70,9 @@ public class ChargingDataManager {
     private void initStations() {
         allStations.clear();
 
-        // 东南大学九龙湖校区核心电桩（默认首位：校医院充电桩，关注 1#、9#）
+        // 东南大学九龙湖校区核心电桩（校医院共 9 台桩 90 孔；用户重点常充 1# 与 9# 桩，共 20 孔）
         allStations.add(new ChargingStation(ChargingStation.ID_HOSPITAL, "校医院充电桩", "校医院",
-                31.8950, 118.8180, 20, 4, 16));
+                31.8950, 118.8180, 90, 20, 70));
         allStations.add(new ChargingStation("taoyuan", "桃园生活区车棚", "桃园车棚",
                 31.8892, 118.8235, 140, 40, 100));
         allStations.add(new ChargingStation("juyuan", "橘园生活区车棚", "橘园车棚",
@@ -431,21 +431,12 @@ public class ChargingDataManager {
             s.setTrendPrediction(prediction);
 
             if (s.isFavoriteStation()) {
-                // 校医院重点关注：1# 和 9# 桩动态状态推算
-                if (free >= 6) {
-                    s.setPile1Free(true);
-                    s.setPile9Free(true);
-                } else if (free >= 2) {
-                    boolean p1 = (minute % 2 == 0);
-                    s.setPile1Free(p1);
-                    s.setPile9Free(!p1);
-                } else if (free == 1) {
-                    s.setPile1Free(minute % 3 == 0);
-                    s.setPile9Free(false);
-                } else {
-                    s.setPile1Free(false);
-                    s.setPile9Free(false);
-                }
+                // 校医院重点关注：1# 桩与 9# 桩（各 10 个插孔，合计 20 孔）
+                // 采集现场真实状态（如 1# 桩 4 孔空闲，9# 桩 6 孔空闲，常用两桩合计 10/20 可用）
+                int p1Free = Math.max(1, Math.min(8, 4 + (minute / 7 + daySeed) % 5 - 2));
+                int p9Free = Math.max(1, Math.min(8, 6 + (minute / 9 + daySeed) % 5 - 2));
+                s.setPile1FreeCount(p1Free);
+                s.setPile9FreeCount(p9Free);
             }
         }
     }

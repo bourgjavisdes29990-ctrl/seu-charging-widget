@@ -74,10 +74,10 @@ public class MainActivity extends AppCompatActivity {
             }));
         });
 
-        // 打开专属 PWA 全校看板 (GitHub Pages)
+        // 打开 Where Are Available Chargers 官方网页版
         Button btnOpenDpdns = findViewById(R.id.btn_open_dpdns);
         btnOpenDpdns.setOnClickListener(v -> {
-            String url = getString(R.string.pwa_url);
+            String url = getString(R.string.dpdns_status_url);
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
         });
 
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
             View btnWeb = widgetPreviewRoot.findViewById(R.id.btn_web);
             if (btnWeb != null) {
                 btnWeb.setOnClickListener(v -> {
-                    String url = getString(R.string.pwa_url);
+                    String url = getString(R.string.dpdns_status_url);
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                 });
             }
@@ -184,8 +184,22 @@ public class MainActivity extends AppCompatActivity {
                 tvName.setText(title);
             }
             if (tvDist != null) tvDist.setText(result.distanceText);
-            if (tvFree != null) tvFree.setText(String.valueOf(currentStation.getFreeSockets()));
-            if (tvTotal != null) tvTotal.setText("个可用 / 共 " + currentStation.getTotalSockets() + " 桩");
+            if (currentStation.isFavoriteStation()) {
+                if (tvFree != null) tvFree.setText(String.valueOf(currentStation.getFavoritePilesFreeTotal()));
+                if (tvTotal != null) tvTotal.setText("个可用 / 1#&9#共20孔");
+                if (tvBreakdown != null) tvBreakdown.setText(currentStation.getPilesFocusSummary());
+                if (tvTrend != null) tvTrend.setText("校医院全场9台桩共90孔 · 余 " + currentStation.getFreeSockets() + " 可用");
+            } else {
+                if (tvFree != null) tvFree.setText(String.valueOf(currentStation.getFreeSockets()));
+                if (tvTotal != null) tvTotal.setText("个可用 / 共 " + currentStation.getTotalSockets() + " 桩");
+                if (tvBreakdown != null) {
+                    tvBreakdown.setText(String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
+                            currentStation.getFreeFastSockets(), currentStation.getFastSockets(),
+                            currentStation.getFreeSlowSockets(), currentStation.getSlowSockets(),
+                            currentStation.getInUseSockets()));
+                }
+                if (tvTrend != null) tvTrend.setText(currentStation.getTrendPrediction());
+            }
 
             if (tvBadge != null) {
                 switch (currentStation.getStatus()) {
@@ -207,19 +221,6 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
             }
-
-            if (tvBreakdown != null) {
-                if (currentStation.isFavoriteStation()) {
-                    tvBreakdown.setText(currentStation.getPilesFocusSummary());
-                } else {
-                    tvBreakdown.setText(String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
-                            currentStation.getFreeFastSockets(), currentStation.getFastSockets(),
-                            currentStation.getFreeSlowSockets(), currentStation.getSlowSockets(),
-                            currentStation.getInUseSockets()));
-                }
-            }
-
-            if (tvTrend != null) tvTrend.setText(currentStation.getTrendPrediction());
 
             if (tvTime != null) {
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.CHINA);
@@ -263,8 +264,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            if (tvFree != null) tvFree.setText(String.valueOf(s.getFreeSockets()));
-            if (tvTotal != null) tvTotal.setText("个可用 / 共 " + s.getTotalSockets() + " 桩");
+            if (s.isFavoriteStation()) {
+                if (tvFree != null) tvFree.setText(String.valueOf(s.getFavoritePilesFreeTotal()));
+                if (tvTotal != null) tvTotal.setText("个可用 / 1#&9#共20孔");
+                if (tvTrend != null) tvTrend.setText("校医院全场9台桩共90孔 · 余 " + s.getFreeSockets() + " 可用");
+            } else {
+                if (tvFree != null) tvFree.setText(String.valueOf(s.getFreeSockets()));
+                if (tvTotal != null) tvTotal.setText("个可用 / 共 " + s.getTotalSockets() + " 桩");
+                if (tvTrend != null) tvTrend.setText(s.getTrendPrediction());
+            }
 
             if (tvBadge != null) {
                 switch (s.getStatus()) {
@@ -297,7 +305,6 @@ public class MainActivity extends AppCompatActivity {
                             s.getInUseSockets()));
                 }
             }
-            if (tvTrend != null) tvTrend.setText(s.getTrendPrediction());
 
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT

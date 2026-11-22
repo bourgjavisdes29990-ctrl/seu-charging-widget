@@ -29,10 +29,12 @@ public class ChargingStation {
     private String trendPrediction;
     private float distanceMeters = -1f;
 
-    // 重点关注桩位（如校医院 1# 和 9#）
+    // 重点关注桩位（校医院 1# 桩与 9# 桩，各 10 个插孔，合计 20 孔）
     private boolean isFavoriteStation = false;
-    private boolean pile1Free = true;
-    private boolean pile9Free = false;
+    private int pile1FreeCount = 4;
+    private int pile9FreeCount = 6;
+    private String pile1FreePorts = "1, 2, 5, 8";
+    private String pile9FreePorts = "2, 3, 4, 5, 9, 10";
 
     public ChargingStation(String id, String name, String shortName,
                            double latitude, double longitude, int totalSockets, int fastSockets, int slowSockets) {
@@ -172,29 +174,71 @@ public class ChargingStation {
         isFavoriteStation = favoriteStation;
     }
 
+    public int getPile1FreeCount() {
+        return pile1FreeCount;
+    }
+
+    public void setPile1FreeCount(int pile1FreeCount) {
+        this.pile1FreeCount = Math.max(0, Math.min(10, pile1FreeCount));
+    }
+
+    public int getPile9FreeCount() {
+        return pile9FreeCount;
+    }
+
+    public void setPile9FreeCount(int pile9FreeCount) {
+        this.pile9FreeCount = Math.max(0, Math.min(10, pile9FreeCount));
+    }
+
+    public String getPile1FreePorts() {
+        return pile1FreePorts;
+    }
+
+    public void setPile1FreePorts(String pile1FreePorts) {
+        this.pile1FreePorts = pile1FreePorts;
+    }
+
+    public String getPile9FreePorts() {
+        return pile9FreePorts;
+    }
+
+    public void setPile9FreePorts(String pile9FreePorts) {
+        this.pile9FreePorts = pile9FreePorts;
+    }
+
+    public int getFavoritePilesFreeTotal() {
+        return pile1FreeCount + pile9FreeCount;
+    }
+
+    public int getFavoritePilesCapacity() {
+        return 20; // 1# 桩 10 孔 + 9# 桩 10 孔
+    }
+
     public boolean isPile1Free() {
-        return pile1Free;
+        return pile1FreeCount > 0;
     }
 
     public void setPile1Free(boolean pile1Free) {
-        this.pile1Free = pile1Free;
+        if (!pile1Free) this.pile1FreeCount = 0;
     }
 
     public boolean isPile9Free() {
-        return pile9Free;
+        return pile9FreeCount > 0;
     }
 
     public void setPile9Free(boolean pile9Free) {
-        this.pile9Free = pile9Free;
+        if (!pile9Free) this.pile9FreeCount = 0;
     }
 
     /**
-     * 生成专属关注桩位（1# 与 9#）的即时摘要
+     * 生成专属关注桩位（1# 与 9# 桩）的即时摘要
      */
     public String getPilesFocusSummary() {
-        String p1 = pile1Free ? "1# 🟢空闲" : "1# 🔴在用";
-        String p9 = pile9Free ? "9# 🟢空闲" : "9# 🔴在用";
-        return "⭐ 常充: " + p1 + " · " + p9;
+        return "⭐ 1#桩: " + pile1FreeCount + "/10空闲 · 9#桩: " + pile9FreeCount + "/10空闲";
+    }
+
+    public String getPilesDetailSummary() {
+        return "1#空孔(" + pile1FreePorts + ") · 9#空孔(" + pile9FreePorts + ")";
     }
 
     public int getStatus() {
@@ -231,8 +275,8 @@ public class ChargingStation {
             json.put("free", freeSockets);
             json.put("inUse", inUseSockets);
             json.put("fault", faultSockets);
-            json.put("pile1Free", pile1Free);
-            json.put("pile9Free", pile9Free);
+            json.put("pile1FreeCount", pile1FreeCount);
+            json.put("pile9FreeCount", pile9FreeCount);
             json.put("prediction", trendPrediction);
         } catch (JSONException ignored) {
         }

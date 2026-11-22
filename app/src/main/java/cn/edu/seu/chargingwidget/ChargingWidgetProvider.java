@@ -75,8 +75,8 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
             // 1. 顶部模式标签（显示当前定位或校区）
             views.setTextViewText(R.id.tv_mode_tag, result.modeTag);
 
-            // 2. 直达专属免安装 PWA 网页版 (GitHub Pages)
-            String webUrl = context.getString(R.string.pwa_url);
+            // 2. 直达 Where Are Available Chargers 官方网页版
+            String webUrl = context.getString(R.string.dpdns_status_url);
             Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(webUrl));
             webIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             PendingIntent webPendingIntent = PendingIntent.getActivity(
@@ -109,22 +109,22 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
                     break;
             }
 
-            // 5. 核心空闲插座大数（明确展示可用数与总数，杜绝歧义）
-            views.setTextViewText(R.id.tv_free_count, String.valueOf(station.getFreeSockets()));
-            views.setTextViewText(R.id.tv_total_suffix, "个可用 / 共 " + station.getTotalSockets() + " 桩");
-
-            // 6. 细分快慢充配比与趋势（校医院重点展示 1# 与 9# 桩位）
-            String breakdownStr;
+            // 5. 核心空闲插座大数（校医院聚焦 1# 与 9# 常用两桩共 20 孔；其他车棚展示全场可用数）
             if (station.isFavoriteStation()) {
-                breakdownStr = station.getPilesFocusSummary();
+                views.setTextViewText(R.id.tv_free_count, String.valueOf(station.getFavoritePilesFreeTotal()));
+                views.setTextViewText(R.id.tv_total_suffix, "个可用 / 1#&9#共20孔");
+                views.setTextViewText(R.id.tv_breakdown, station.getPilesFocusSummary());
+                views.setTextViewText(R.id.tv_trend_prediction, "校医院全场9台桩共90孔 · 余 " + station.getFreeSockets() + " 可用");
             } else {
-                breakdownStr = String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
+                views.setTextViewText(R.id.tv_free_count, String.valueOf(station.getFreeSockets()));
+                views.setTextViewText(R.id.tv_total_suffix, "个可用 / 共 " + station.getTotalSockets() + " 桩");
+                String breakdownStr = String.format(Locale.CHINA, "⚡ 快充 %d/%d · 慢充 %d/%d · 在用 %d",
                         station.getFreeFastSockets(), station.getFastSockets(),
                         station.getFreeSlowSockets(), station.getSlowSockets(),
                         station.getInUseSockets());
+                views.setTextViewText(R.id.tv_breakdown, breakdownStr);
+                views.setTextViewText(R.id.tv_trend_prediction, station.getTrendPrediction());
             }
-            views.setTextViewText(R.id.tv_breakdown, breakdownStr);
-            views.setTextViewText(R.id.tv_trend_prediction, station.getTrendPrediction());
 
             // 7. 更新时间
             views.setTextViewText(R.id.tv_update_time, updateTimeStr);

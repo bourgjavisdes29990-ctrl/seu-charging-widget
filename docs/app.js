@@ -10,11 +10,11 @@ const STATIONS_DATA = [
     zone: "academic",
     lat: 31.8950,
     lng: 118.8180,
-    total: 20,
-    fast: 4,
-    slow: 16,
+    total: 90,
+    fast: 20,
+    slow: 70,
     isFavorite: true,
-    desc: "校医院西侧车棚，常充专属重点监测 1# 与 9# 桩位"
+    desc: "校医院车棚共9台桩(90孔)，常充关注1#桩与9#桩(各10孔，合计20孔)"
   },
   {
     id: "taoyuan",
@@ -223,22 +223,11 @@ function computeLiveStationStatus(station) {
     dist = calculateDistance(userLocation.lat, userLocation.lng, station.lat, station.lng);
   }
 
-  let pile1Free = true;
-  let pile9Free = false;
+  let pile1FreeCount = 4;
+  let pile9FreeCount = 6;
   if (station.id === 'hospital') {
-    if (free >= 6) {
-      pile1Free = true;
-      pile9Free = true;
-    } else if (free >= 2) {
-      pile1Free = (minute % 2 === 0);
-      pile9Free = !pile1Free;
-    } else if (free === 1) {
-      pile1Free = (minute % 3 === 0);
-      pile9Free = false;
-    } else {
-      pile1Free = false;
-      pile9Free = false;
-    }
+    pile1FreeCount = Math.max(1, Math.min(8, 4 + ((Math.floor(minute / 7) + dayOfYear) % 5) - 2));
+    pile9FreeCount = Math.max(1, Math.min(8, 6 + ((Math.floor(minute / 9) + dayOfYear) % 5) - 2));
   }
 
   return {
@@ -251,8 +240,9 @@ function computeLiveStationStatus(station) {
     badgeClass,
     prediction,
     distanceMeters: dist,
-    pile1Free,
-    pile9Free
+    pile1FreeCount,
+    pile9FreeCount,
+    favoritePilesFreeTotal: pile1FreeCount + pile9FreeCount
   };
 }
 
@@ -304,10 +294,14 @@ function renderApp() {
       distHtml = `<span style="color:#38bdf8;margin-left:4px;">· 距你 ${d < 1000 ? d + 'm' : (d / 1000).toFixed(1) + 'km'}</span>`;
     }
 
-    const breakdownHtml = s.id === 'hospital'
-      ? `<span style="color:#38bdf8;font-weight:600;">⭐ 常充关注: 1# ${s.pile1Free ? '🟢空闲' : '🔴在用'} · 9# ${s.pile9Free ? '🟢空闲' : '🔴在用'}</span>`
+    const isHospital = s.id === 'hospital';
+    const breakdownHtml = isHospital
+      ? `<span style="color:#38bdf8;font-weight:600;">⭐ 1#桩: ${s.pile1FreeCount}/10空闲 · 9#桩: ${s.pile9FreeCount}/10空闲</span>`
       : `⚡ 快充 ${s.fastFree}/${s.fast} · 慢充 ${s.slowFree}/${s.slow}`;
-    const stationTitle = s.id === 'hospital' ? `⭐ ${s.name}` : s.name;
+    const stationTitle = isHospital ? `⭐ ${s.name}` : s.name;
+    const freeNum = isHospital ? s.favoritePilesFreeTotal : s.free;
+    const totalDesc = isHospital ? `个可用 / 1#&9#共20孔` : `个可用 / 共 ${s.total} 桩`;
+    const predText = isHospital ? `校医院全场9台桩共90孔 · 余 ${s.free} 可用` : s.prediction;
 
     card.innerHTML = `
       <div class="card-top">
@@ -318,12 +312,12 @@ function renderApp() {
         <span class="badge ${s.badgeClass}">${s.statusText}</span>
       </div>
       <div class="card-main-stats">
-        <span class="card-free-num">${s.free}</span>
-        <span class="card-total-desc">个可用 / 共 ${s.total} 桩</span>
+        <span class="card-free-num">${freeNum}</span>
+        <span class="card-total-desc">${totalDesc}</span>
       </div>
       <div class="card-sub-info">
         <span class="card-breakdown">${breakdownHtml}</span>
-        <span class="card-prediction">${s.prediction}</span>
+        <span class="card-prediction">${predText}</span>
       </div>
     `;
     listContainer.appendChild(card);
@@ -335,12 +329,14 @@ function openStationModal(station) {
   document.getElementById('modal-title').innerText = station.id === 'hospital' ? `⭐ ${station.name}` : station.name;
   document.getElementById('modal-badge').innerText = station.statusText;
   document.getElementById('modal-badge').className = `badge ${station.badgeClass}`;
-  document.getElementById('modal-free-count').innerText = station.free;
-  document.getElementById('modal-total-count').innerText = `个可用 / 共 ${station.total} 桩`;
   
   if (station.id === 'hospital') {
-    document.getElementById('modal-desc').innerHTML = `${station.desc}<br><br><strong style="color:#38bdf8;">⭐ 重点桩位实时状态：</strong><br>1# 桩：${station.pile1Free ? '🟢 空闲可用' : '🔴 正在充电'}<br>9# 桩：${station.pile9Free ? '🟢 空闲可用' : '🔴 正在充电'}`;
+    document.getElementById('modal-free-count').innerText = station.favoritePilesFreeTotal;
+    document.getElementById('modal-total-count').innerText = `个可用 / 1#&9#共20孔`;
+    document.getElementById('modal-desc').innerHTML = `${station.desc}<br><br><strong style="color:#38bdf8;">⭐ 重点桩位孔位状态：</strong><br>1# 桩：${station.pile1FreeCount}/10 空闲（孔 1, 2, 5, 8 可用）<br>9# 桩：${station.pile9FreeCount}/10 空闲（孔 2, 3, 4, 5, 9, 10 可用）<br><br><span style="color:#94a3b8;font-size:0.8rem;">校医院全场共 9 台桩，90 个插孔，全场空闲 ${station.free} 孔</span>`;
   } else {
+    document.getElementById('modal-free-count').innerText = station.free;
+    document.getElementById('modal-total-count').innerText = `个可用 / 共 ${station.total} 桩`;
     document.getElementById('modal-desc').innerText = station.desc;
   }
   document.getElementById('modal-prediction').innerText = station.prediction;
