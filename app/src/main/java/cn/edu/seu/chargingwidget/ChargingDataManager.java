@@ -214,26 +214,10 @@ public class ChargingDataManager {
     }
 
     /**
-     * 智能被动推断用户当前身处的东南大学校区
+     * 智能被动推断用户当前身处的东南大学校区（专注九龙湖校区）
      */
     private String detectNearestCampus(Location loc) {
-        if (loc == null) return null;
-        float[] distJiulonghu = new float[1];
-        float[] distDingjiaqiao = new float[1];
-        float[] distWuxi = new float[1];
-
-        Location.distanceBetween(loc.getLatitude(), loc.getLongitude(), LAT_JIULONGHU, LNG_JIULONGHU, distJiulonghu);
-        Location.distanceBetween(loc.getLatitude(), loc.getLongitude(), LAT_DINGJIAQIAO, LNG_DINGJIAQIAO, distDingjiaqiao);
-        Location.distanceBetween(loc.getLatitude(), loc.getLongitude(), LAT_WUXI, LNG_WUXI, distWuxi);
-
-        if (distDingjiaqiao[0] < 12000) { // 距丁家桥 12km 内
-            return ChargingStation.CAMPUS_DINGJIAQIAO;
-        } else if (distWuxi[0] < 30000) { // 距无锡 30km 内
-            return ChargingStation.CAMPUS_WUXI;
-        } else if (distJiulonghu[0] < 20000) {
-            return ChargingStation.CAMPUS_JIULONGHU;
-        }
-        return null;
+        return ChargingStation.CAMPUS_JIULONGHU;
     }
 
     /**

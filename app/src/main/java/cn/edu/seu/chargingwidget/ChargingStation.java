@@ -10,6 +10,8 @@ public class ChargingStation {
 
     public static final String ID_HOSPITAL = "hospital";
     public static final String CAMPUS_JIULONGHU = "jiulonghu";
+    public static final String CAMPUS_DINGJIAQIAO = "dingjiaqiao";
+    public static final String CAMPUS_WUXI = "wuxi";
 
     private final String id;
     private final String name;

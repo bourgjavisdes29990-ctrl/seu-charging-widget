@@ -33,8 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout layoutStationsList;
     private View widgetPreviewRoot;
 
-    private String selectedCampus = ChargingStation.CAMPUS_JIULONGHU;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
