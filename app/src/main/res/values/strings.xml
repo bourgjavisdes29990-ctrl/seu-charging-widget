@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">东大电桩</string>
+    <string name="widget_name">东大充电桩小组件 (4x2)</string>
+    <string name="widget_title">东南大学·九龙湖电桩</string>
+    <string name="btn_web">全校电桩 🌐</string>
+    <string name="btn_switch_next">🔄 换车棚</string>
+    <string name="btn_auto_loc">📍 离我最近</string>
+    <string name="btn_refresh">⚡ 刷新</string>
+    <string name="status_ample">充裕</string>
+    <string name="status_moderate">紧张</string>
+    <string name="status_full">满位</string>
+    <string name="free_socket_suffix">空闲插座</string>
+    <string name="pwa_url">https://seu-charging.github.io</string>
+</resources>

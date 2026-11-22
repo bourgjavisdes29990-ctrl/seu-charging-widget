@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>东南大学充电桩实时看板 | 九龙湖校区</title>
+  
+  <!-- PWA Meta -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="东大电桩">
+  <link rel="apple-touch-icon" href="./icons/icon-192.svg">
+  <link rel="icon" type="image/svg+xml" href="./icons/icon-192.svg">
+
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.31.68L11 21z"/></svg>
+        </div>
+        <div class="brand-info">
+          <h1>东南大学 · 九龙湖电桩</h1>
+          <p>电动自行车充电桩空闲实时监测</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-locate" class="icon-btn" title="获取离我最近的车棚">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        </button>
+        <button id="btn-refresh" class="icon-btn" title="刷新数据">
+          <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- PWA Install Banner -->
+    <div id="pwa-banner" class="pwa-install-banner" style="display: none;">
+      <div class="pwa-banner-text">
+        <strong>免安装桌面版</strong>：添加到手机桌面，无地址栏全屏体验！
+      </div>
+      <button id="btn-install-pwa" class="install-btn">立即添加</button>
+    </div>
+
+    <!-- Campus Total Stats Card -->
+    <section class="hero-card">
+      <div class="hero-header">
+        <div class="hero-title">
+          <span class="pulse-dot"></span>
+          <span>全校电桩实时总览 (九龙湖)</span>
+        </div>
+        <span style="font-size:0.75rem; color:#94a3b8;">动态监测中</span>
+      </div>
+      <div class="hero-stats-row">
+        <div class="hero-number-wrap">
+          <span id="total-free-count" class="hero-big-number">--</span>
+          <span id="total-capacity-count" class="hero-number-label">/ -- 插座</span>
+        </div>
+        <div class="hero-rates">
+          <div>全校空闲率 <span id="total-free-percent" class="rate-highlight">--%</span></div>
+          <div style="font-size:0.72rem; color:#64748b; margin-top:2px;">含快充与慢充插座</div>
+        </div>
+      </div>
+      <div class="progress-container">
+        <div id="total-progress-bar" class="progress-bar-fill" style="width: 0%;"></div>
+      </div>
+    </section>
+
+    <!-- Category Filter Tabs -->
+    <nav class="filter-scroll">
+      <button class="filter-tab active" data-filter="all">全部车棚 (8)</button>
+      <button class="filter-tab" data-filter="dorm">宿舍生活区</button>
+      <button class="filter-tab" data-filter="academic">教学科研区</button>
+      <button class="filter-tab" data-filter="ample">余位充裕</button>
+      <button class="filter-tab" data-filter="nearest">📍 离我最近</button>
+    </nav>
+
+    <!-- Stations Grid Container -->
+    <main id="stations-container" class="station-grid">
+      <!-- Populated dynamically via app.js -->
+    </main>
+
+    <!-- Footer & Campus Safety Note -->
+    <footer>
+      <p>东南大学九龙湖校区 · 电动车智能充电监测看板</p>
+      <p style="margin-top: 4px;">⚠️ 校园消防安全提示：严禁将电瓶带入宿舍室内充电，充满请及时拔电移车。</p>
+    </footer>
+  </div>
+
+  <!-- Detail Modal Sheet -->
+  <div id="station-modal" class="modal-overlay">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div>
+          <h3 id="modal-title" style="font-size: 1.15rem; color: #f8fafc;">车棚名称</h3>
+          <span id="modal-badge" class="badge green" style="margin-top: 4px;">充裕</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeStationModal()">✕</button>
+      </div>
+
+      <div class="modal-info-block">
+        <h4>⚡ 当前空位详情</h4>
+        <div style="display:flex; align-items:baseline; gap:6px;">
+          <span id="modal-free-count" style="font-size: 2rem; font-weight:800; color:#fff;">--</span>
+          <span id="modal-total-count" style="color:#94a3b8; font-size:0.85rem;">/ -- 空闲插座</span>
+        </div>
+        <div id="modal-fast" style="font-size: 0.82rem; color: #cbd5e1; margin-top: 8px;">快充插座：--</div>
+        <div id="modal-slow" style="font-size: 0.82rem; color: #cbd5e1; margin-top: 4px;">慢充插座：--</div>
+      </div>
+
+      <div class="modal-info-block">
+        <h4>⏳ 峰谷与趋势预测</h4>
+        <p id="modal-prediction" style="font-size:0.85rem; color:#94a3b8;">--</p>
+      </div>
+
+      <div class="modal-info-block">
+        <h4>📍 位置覆盖与设施说明</h4>
+        <p id="modal-desc" style="font-size:0.85rem; color:#94a3b8; line-height:1.5;">--</p>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btn-navigate" class="btn-primary">
+          <svg style="width:16px;height:16px;fill:currentColor;" viewBox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>
+          一键路线导航
+        </button>
+        <button class="btn-secondary" onclick="closeStationModal()">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

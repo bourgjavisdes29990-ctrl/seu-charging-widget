@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Modern Frosted Dark Slate Theme (#0f172a) -->
+    <color name="bg_widget">#0f172a</color>
+    <color name="bg_widget_stroke">#1e293b</color>
+    <color name="bg_card_inner">#1e293b</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#f8fafc</color>
+    <color name="text_secondary">#94a3b8</color>
+    <color name="text_muted">#64748b</color>
+    
+    <!-- Status Colors -->
+    <color name="status_green_bg">#14532d</color>
+    <color name="status_green_text">#4ade80</color>
+    <color name="status_green_stroke">#22c55e</color>
+
+    <color name="status_yellow_bg">#78350f</color>
+    <color name="status_yellow_text">#fbbf24</color>
+    <color name="status_yellow_stroke">#f59e0b</color>
+
+    <color name="status_red_bg">#7f1d1d</color>
+    <color name="status_red_text">#f87171</color>
+    <color name="status_red_stroke">#ef4444</color>
+
+    <!-- Accent & Controls -->
+    <color name="accent_blue">#3b82f6</color>
+    <color name="accent_cyan">#06b6d4</color>
+    <color name="btn_pill_bg">#1e293b</color>
+    <color name="btn_pill_stroke">#334155</color>
+    <color name="btn_accent_bg">#1d4ed8</color>
+</resources>
