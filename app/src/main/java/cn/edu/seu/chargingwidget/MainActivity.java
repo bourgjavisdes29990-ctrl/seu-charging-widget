@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         boolean hasCoarse = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
         if (hasFine || hasCoarse) {
-            tvPermStatus.setText("✅ 已获定位权限：在九龙湖校区内将自动为你匹配距离最近的车棚。");
+            tvPermStatus.setText("✅ 已获定位权限：卡片默认锁定展示校医院，已实时为你计算各车棚距离。");
             tvPermStatus.setTextColor(ContextCompat.getColor(this, R.color.status_green_text));
             btnGrantPermission.setVisibility(View.GONE);
         } else {

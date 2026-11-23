@@ -9,9 +9,6 @@ import android.location.LocationManager;
 
 import androidx.core.content.ContextCompat;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -23,6 +20,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChargingDataManager {
     private static final String PREF_NAME = "seu_charging_prefs";
@@ -34,8 +33,9 @@ public class ChargingDataManager {
 
     private static final long MANUAL_OVERRIDE_DURATION_MS = 45 * 60 * 1000L; // 45 分钟防跳变保护期
 
-    // 对接 Golevka2001/Where-Are-Available-Chargers 官方服务
+    // 对接 Golevka2001/Where-Are-Available-Chargers 官方服务（中网充实时数据源）
     public static final String URL_DPDNS_STATUS = "https://chargers.dpdns.org/status";
+    public static final String URL_DPDNS_CLASSIC = "https://chargers.dpdns.org/classic";
     public static final String URL_ZWC_BACKEND = "https://zwc-backend.chargers.dpdns.org/getProductByDndx.action";
 
     // 东南大学三大校区中心经纬度基准
@@ -172,14 +172,13 @@ public class ChargingDataManager {
 
     /**
      * 获取当前应展示的车棚：
-     * 1. 检查是否存在 45 分钟内的手动锁定保护期；
-     * 2. 若未手动锁定且开启智能定位感知，使用系统的 getLastKnownLocation 推断最近校区与车棚；
-     * 3. 否则读取上次选定的车棚。
+     * 核心规则：卡片始终默认锁定展示校医院（用户常充点位）；
+     * 仅当用户主动点击“换车棚”或“离我最近”且处于 45 分钟临时查看期内时，才临时展示指定车棚；
+     * 保护期过后或再次点击“离我最近”，自动恢复默认的校医院。
      */
     public StationDisplayResult getCurrentDisplayStation() {
         updateSimulationData();
         SharedPreferences sp = appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        boolean isAutoLocate = sp.getBoolean(KEY_AUTO_LOCATE_ENABLED, true);
         long overrideTime = sp.getLong(KEY_MANUAL_OVERRIDE_TIME, 0L);
         long now = System.currentTimeMillis();
         boolean isManualLocked = (now - overrideTime) < MANUAL_OVERRIDE_DURATION_MS;
@@ -187,24 +186,13 @@ public class ChargingDataManager {
         Location passiveLoc = getPassiveLocation();
         updateStationDistances(passiveLoc);
 
-        if (!isManualLocked && isAutoLocate && passiveLoc != null) {
-            ChargingStation nearest = findNearestStationInCampus(ChargingStation.CAMPUS_JIULONGHU);
-            if (nearest != null) {
-                if (nearest.getDistanceMeters() >= 0 && nearest.getDistanceMeters() <= 3000) {
-                    saveCurrentStationId(nearest.getId());
-                    int dist = Math.round(nearest.getDistanceMeters());
-                    String modeTag = nearest.isFavoriteStation() ? "⭐ 常用" : "📍 自动";
-                    String distText = dist < 1000 ? String.format(Locale.CHINA, " · 距你 %dm", dist)
-                            : String.format(Locale.CHINA, " · 距你 %.1fkm", dist / 1000f);
-                    return new StationDisplayResult(nearest, modeTag, distText, true);
-                }
-            }
-        }
+        // 未处于临时切换状态时，始终无条件锁定校医院
+        String stationId = isManualLocked
+                ? sp.getString(KEY_CURRENT_STATION_ID, ChargingStation.ID_HOSPITAL)
+                : ChargingStation.ID_HOSPITAL;
 
-        // 手动模式或超出定位感知范围（默认首选校医院）
-        String savedId = sp.getString(KEY_CURRENT_STATION_ID, ChargingStation.ID_HOSPITAL);
-        ChargingStation current = getStationById(savedId);
-        String modeTag = isManualLocked ? "👤 手动" : (current.isFavoriteStation() ? "⭐ 常用" : "📍 默认");
+        ChargingStation current = getStationById(stationId);
+        String modeTag = current.isFavoriteStation() ? "⭐ 默认" : "🔄 临时";
         String distText = "";
         if (current.getDistanceMeters() >= 0) {
             int dist = Math.round(current.getDistanceMeters());
@@ -212,7 +200,7 @@ public class ChargingDataManager {
                     : String.format(Locale.CHINA, " · 距你 %.1fkm", dist / 1000f);
         }
 
-        return new StationDisplayResult(current, modeTag, distText, false);
+        return new StationDisplayResult(current, modeTag, distText, !isManualLocked);
     }
 
     /**
@@ -241,14 +229,39 @@ public class ChargingDataManager {
     }
 
     /**
-     * 重置手动锁定，开启智能自动定位感知
+     * 点击“离我最近”：定位最近车棚；若当前已是最近车棚，则重置回默认的校医院
      */
-    public void resetToAutoLocation() {
+    public ChargingStation snapToNearestOrReset() {
         SharedPreferences sp = appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        String currentId = sp.getString(KEY_CURRENT_STATION_ID, ChargingStation.ID_HOSPITAL);
+        Location loc = getPassiveLocation();
+        updateStationDistances(loc);
+        if (loc != null) {
+            ChargingStation nearest = findNearestStationInCampus(ChargingStation.CAMPUS_JIULONGHU);
+            if (nearest != null) {
+                if (nearest.getId().equals(currentId) && !ChargingStation.ID_HOSPITAL.equals(currentId)) {
+                    sp.edit()
+                            .putString(KEY_CURRENT_STATION_ID, ChargingStation.ID_HOSPITAL)
+                            .putLong(KEY_MANUAL_OVERRIDE_TIME, 0L)
+                            .apply();
+                    return getStationById(ChargingStation.ID_HOSPITAL);
+                }
+                sp.edit()
+                        .putString(KEY_CURRENT_STATION_ID, nearest.getId())
+                        .putLong(KEY_MANUAL_OVERRIDE_TIME, System.currentTimeMillis())
+                        .apply();
+                return nearest;
+            }
+        }
         sp.edit()
-                .putBoolean(KEY_AUTO_LOCATE_ENABLED, true)
+                .putString(KEY_CURRENT_STATION_ID, ChargingStation.ID_HOSPITAL)
                 .putLong(KEY_MANUAL_OVERRIDE_TIME, 0L)
                 .apply();
+        return getStationById(ChargingStation.ID_HOSPITAL);
+    }
+
+    public void resetToAutoLocation() {
+        snapToNearestOrReset();
     }
 
     private void saveCurrentStationId(String id) {
@@ -319,20 +332,19 @@ public class ChargingDataManager {
     }
 
     /**
-     * 异步拉取 Where-Are-Available-Chargers / chargers.dpdns.org 官方实时数据
+     * 异步拉取 Where-Are-Available-Chargers / chargers.dpdns.org 官方实时数据（源自中网充）
      */
     public void fetchRemoteDataAsync(final SyncCallback callback) {
         networkExecutor.execute(() -> {
             boolean success = false;
             String message;
             try {
-                // 优先请求 ZWC 供应商后端数据接口
-                URL url = new URL(URL_ZWC_BACKEND);
+                URL url = new URL(URL_DPDNS_CLASSIC);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setConnectTimeout(6000);
-                conn.setReadTimeout(6000);
-                conn.setRequestProperty("User-Agent", "SEU-Charging-Android-Widget/1.0");
+                conn.setConnectTimeout(8000);
+                conn.setReadTimeout(8000);
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Android; Mobile) SEU-Charging-Widget/1.2");
 
                 int code = conn.getResponseCode();
                 if (code == 200) {
@@ -340,19 +352,19 @@ public class ChargingDataManager {
                     StringBuilder sb = new StringBuilder();
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        sb.append(line);
+                        sb.append(line).append("\n");
                     }
                     reader.close();
 
-                    parseAndApplyRemoteJson(sb.toString());
+                    parseAndApplyRemoteHtml(sb.toString());
                     saveSyncTimestamp();
                     success = true;
-                    message = "成功同步 chargers.dpdns.org 官方数据";
+                    message = "成功同步中网充实时官方数据";
                 } else {
-                    message = "远程服务器返回代码: " + code + "，已启用平滑校内仿真";
+                    message = "中网充网关返回代码: " + code + "，已启用平滑离线基准";
                 }
             } catch (Exception e) {
-                message = "网络连接受限: " + e.getMessage() + "，已启用离线智能推算";
+                message = "网络连接受限: " + e.getMessage() + "，已启用平滑离线基准";
             }
 
             final boolean finalSuccess = success;
@@ -363,40 +375,42 @@ public class ChargingDataManager {
         });
     }
 
-    private void parseAndApplyRemoteJson(String jsonStr) {
+    private void parseAndApplyRemoteHtml(String html) {
         try {
-            if (jsonStr.startsWith("[")) {
-                JSONArray arr = new JSONArray(jsonStr);
-                applyJsonArray(arr);
-            } else if (jsonStr.startsWith("{")) {
-                JSONObject obj = new JSONObject(jsonStr);
-                if (obj.has("data") && obj.get("data") instanceof JSONArray) {
-                    applyJsonArray(obj.getJSONArray("data"));
-                }
-            }
-        } catch (Exception ignored) {
-        }
-    }
-
-    private void applyJsonArray(JSONArray arr) {
-        for (int i = 0; i < arr.length(); i++) {
-            try {
-                JSONObject item = arr.getJSONObject(i);
-                String name = item.optString("name", "");
-                int total = item.optInt("total", -1);
-                int free = item.optInt("free", item.optInt("available", -1));
-                int inUse = item.optInt("inUse", item.optInt("occupied", -1));
+            Pattern pattern = Pattern.compile("<tr>\\s*<th>([^<]+)</th>\\s*<td>.*?bold\">(\\d+)</span>\\s*/\\s*(\\d+)</td>\\s*<td[^>]*>(.*?)</td>\\s*</tr>", Pattern.DOTALL);
+            Matcher matcher = pattern.matcher(html);
+            while (matcher.find()) {
+                String name = matcher.group(1).trim();
+                int free = Integer.parseInt(matcher.group(2).trim());
+                int total = Integer.parseInt(matcher.group(3).trim());
+                String pilesRaw = matcher.group(4);
+                String piles = pilesRaw.replaceAll("<[^>]+>", "").trim();
 
                 for (ChargingStation s : allStations) {
                     if (name.contains(s.getShortName()) || s.getName().contains(name)) {
-                        if (total > 0) s.setTotalSockets(total);
-                        if (free >= 0) s.setFreeSockets(free);
-                        if (inUse >= 0) s.setInUseSockets(inUse);
+                        s.setTotalSockets(total);
+                        s.setFreeSockets(free);
+                        s.setInUseSockets(Math.max(0, total - free));
+                        s.setPilesRemainingSummary("余量: " + piles);
+
+                        if (s.isFavoriteStation()) {
+                            Matcher m1 = Pattern.compile("#1:\\s*(\\d+)").matcher(piles);
+                            if (m1.find()) {
+                                s.setPile1FreeCount(Integer.parseInt(m1.group(1).trim()));
+                            }
+                            Matcher m9 = Pattern.compile("#9:\\s*(\\d+)").matcher(piles);
+                            if (m9.find()) {
+                                s.setPile9FreeCount(Integer.parseInt(m9.group(1).trim()));
+                            }
+                            s.setTrendPrediction("校医院全场9台桩共" + total + "孔 · 实时余 " + free + " 可用");
+                        } else {
+                            s.setTrendPrediction(free > (total / 3) ? "插座充足，随到随充" : "余量紧张，建议留意空孔");
+                        }
                         break;
                     }
                 }
-            } catch (Exception ignored) {
             }
+        } catch (Exception ignored) {
         }
     }
 
