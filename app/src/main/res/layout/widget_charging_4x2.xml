@@ -5,187 +5,210 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_widget_card"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:padding="10dp">
 
-    <!-- Top Row: App Title, Mode Badge, and Web App Jump Button -->
+    <!-- 内容区：占据剩余空间；底部操作栏固定，保证按钮永远可见可点 -->
     <LinearLayout
+        android:id="@+id/content_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:contentDescription="@string/widget_title"
-            android:src="@drawable/ic_bolt" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:text="@string/widget_title"
-            android:textColor="@color/text_primary"
-            android:textSize="12sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tv_mode_tag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:background="@drawable/bg_pill_button"
-            android:paddingStart="6dp"
-            android:paddingTop="1dp"
-            android:paddingEnd="6dp"
-            android:paddingBottom="1dp"
-            android:text="📍 自动"
-            android:textColor="@color/accent_cyan"
-            android:textSize="10sp" />
-
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
-        <!-- Web App Jump Button -->
-        <TextView
-            android:id="@+id/btn_web"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_pill_button"
-            android:paddingStart="8dp"
-            android:paddingTop="3dp"
-            android:paddingEnd="8dp"
-            android:paddingBottom="3dp"
-            android:text="@string/btn_web"
-            android:textColor="@color/accent_cyan"
-            android:textSize="11sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <!-- Middle Row: Station Name, Distance, and Status Badge -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/tv_station_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxWidth="180dp"
-            android:singleLine="true"
-            android:text="桃园车棚"
-            android:textColor="@color/text_primary"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tv_distance_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:text="· 距你 85m"
-            android:textColor="@color/text_secondary"
-            android:textSize="11sp" />
-
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
-        <!-- Availability Badge: Green / Yellow / Red -->
-        <TextView
-            android:id="@+id/tv_status_badge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_badge_green"
-            android:paddingStart="8dp"
-            android:paddingTop="2dp"
-            android:paddingEnd="8dp"
-            android:paddingBottom="2dp"
-            android:text="● 充裕"
-            android:textColor="@color/status_green_text"
-            android:textSize="11sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <!-- Main Content Row: Big Sockets Count and Breakdown -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <!-- Big Vacancy Number -->
+        <!-- Top Row: App Title, Mode Badge, and Web App Jump Button -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="bottom"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tv_free_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="18"
-                android:textColor="@color/text_primary"
-                android:textSize="32sp"
-                android:textStyle="bold" />
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:contentDescription="@string/widget_title"
+                android:src="@drawable/ic_bolt" />
 
             <TextView
-                android:id="@+id/tv_total_suffix"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:layout_marginBottom="4dp"
-                android:text="个可用 / 共 20 桩"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
-        <!-- Breakdown & Smart Prediction Info -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="end"
-            android:orientation="vertical">
+                android:text="@string/widget_title"
+                android:textColor="@color/text_primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tv_breakdown"
+                android:id="@+id/tv_mode_tag"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="⚡ 快充 8/20 · 慢充 10/40"
-                android:textColor="@color/text_secondary"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_pill_button"
+                android:paddingStart="6dp"
+                android:paddingTop="1dp"
+                android:paddingEnd="6dp"
+                android:paddingBottom="1dp"
+                android:text="📍 自动"
+                android:textColor="@color/accent_cyan"
                 android:textSize="10sp" />
 
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Web App Jump Button -->
             <TextView
-                android:id="@+id/tv_trend_prediction"
+                android:id="@+id/btn_web"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="预计 18:30 空出 4 个"
-                android:textColor="@color/text_muted"
-                android:textSize="9sp" />
+                android:background="@drawable/bg_pill_button"
+                android:paddingStart="8dp"
+                android:paddingTop="3dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="3dp"
+                android:text="@string/btn_web"
+                android:textColor="@color/accent_cyan"
+                android:textSize="11sp"
+                android:textStyle="bold" />
         </LinearLayout>
+
+        <!-- Middle Row: Station Name, Distance, and Status Badge -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_station_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxWidth="180dp"
+                android:singleLine="true"
+                android:text="桃园车棚"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_distance_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:text="· 距你 85m"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp" />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Availability Badge: Green / Yellow / Red -->
+            <TextView
+                android:id="@+id/tv_status_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_badge_green"
+                android:paddingStart="8dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="2dp"
+                android:text="● 充裕"
+                android:textColor="@color/status_green_text"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Main Content Row: Big Sockets Count and Breakdown -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- Big Vacancy Number -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_free_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="18"
+                    android:textColor="@color/text_primary"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_total_suffix"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginBottom="4dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="个可用 / 共 20 桩"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Breakdown & Smart Prediction Info（单行省略，避免撑高卡片） -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_breakdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="⚡ 快充 8/20 · 慢充 10/40"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/tv_trend_prediction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:ellipsize="end"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="预计 18:30 空出 4 个"
+                    android:textColor="@color/text_muted"
+                    android:textSize="9sp" />
+            </LinearLayout>
+        </LinearLayout>
+
     </LinearLayout>
 
     <!-- Bottom Actions Row: Updated Timestamp and Operational Buttons -->
     <LinearLayout
+        android:id="@+id/action_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
         android:gravity="center_vertical"
+        android:minHeight="26dp"
         android:orientation="horizontal">
 
         <TextView

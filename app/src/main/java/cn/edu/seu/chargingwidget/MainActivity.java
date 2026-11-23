@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         btnSyncRemote = findViewById(R.id.btn_sync_remote);
         layoutStationsList = findViewById(R.id.layout_stations_list);
         widgetPreviewRoot = findViewById(R.id.widget_preview_container);
+        normalizeContentHeight(widgetPreviewRoot);
 
         btnGrantPermission.setOnClickListener(v -> requestLocationPermissions());
 
@@ -149,6 +151,24 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "状态已刷新", Toast.LENGTH_SHORT).show();
                 });
             }
+        }
+    }
+
+    /**
+     * 小程序件布局在桌面上是 match_parent（内容区用 weight 占满剩余空间以保证按钮不被挤出）；
+     * 但在 App 内的预览与列表项是 wrap_content 高度，weight 会让内容区塌成 0 高，
+     * 因此这里把内容区改回自适应高度。
+     */
+    private void normalizeContentHeight(View root) {
+        if (root == null) return;
+        View content = root.findViewById(R.id.content_container);
+        if (content == null) return;
+        ViewGroup.LayoutParams params = content.getLayoutParams();
+        if (params instanceof LinearLayout.LayoutParams) {
+            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) params;
+            lp.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+            lp.weight = 0f;
+            content.setLayoutParams(lp);
         }
     }
 
@@ -263,6 +283,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (ChargingStation s : campusStations) {
             View itemView = LayoutInflater.from(this).inflate(R.layout.widget_charging_4x2, layoutStationsList, false);
+            normalizeContentHeight(itemView);
 
             View bottomBar = itemView.findViewById(R.id.btn_switch_next).getParent() instanceof View
                     ? (View) itemView.findViewById(R.id.btn_switch_next).getParent() : null;
