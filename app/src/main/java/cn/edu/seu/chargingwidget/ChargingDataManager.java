@@ -345,7 +345,7 @@ public class ChargingDataManager {
                 conn.setRequestMethod("GET");
                 conn.setConnectTimeout(8000);
                 conn.setReadTimeout(8000);
-                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Android; Mobile) SEU-Charging-Widget/1.5");
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Android; Mobile) SEU-Charging-Widget/1.6");
                 conn.setRequestProperty("Accept", "application/json");
 
                 int code = conn.getResponseCode();

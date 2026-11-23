@@ -1,6 +1,6 @@
 // Service Worker: Network-First Cache Strategy
 // 确保任何线上更新立即对手机生效，杜绝旧缓存卡住问题
-const CACHE_VERSION = 'seu-charging-v1.0.0';
+const CACHE_VERSION = 'seu-charging-v1.6.0';
 const CACHE_NAME = `seu-charging-${CACHE_VERSION}`;
 
 const PRECACHE_ASSETS = [

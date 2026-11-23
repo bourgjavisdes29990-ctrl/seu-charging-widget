@@ -67,7 +67,7 @@ git push -u origin main
 ### 2. 下载 Android 安装包 (APK)
 1. 推送代码后，打开你的 GitHub 仓库，点击顶部 **Actions** 标签；
 2. 点击最新的 **Build SEU Charging Widget APK** 流水线运行记录；
-3. 在页面底部的 **Artifacts** 区域，点击下载 `seu-charging-widget-v1.5`；
+3. 在页面底部的 **Artifacts** 区域，点击下载 `seu-charging-widget-v1.6`；
 4. 解压后将 APK 发送到 Android 手机上安装。
 
 ### 3. 添加到手机桌面 (Widget 4×2)
@@ -82,7 +82,7 @@ git push -u origin main
 
 ---
 
-## 🐛 已修复问题（v1.5+）
+## 🐛 已修复问题（v1.6）
 
 - 数据来源改为官方 JSON API，移除原先抓取 `/classic` HTML 正则解析与伪造仿真算法，解决「数据始终不更新且对不上」。
 - 修复点击「换车棚」后无法切回校医院：补注册 `ACTION_RESET_HOSPITAL` 广播，并确保「⭐ 回校医院」按钮可用。
