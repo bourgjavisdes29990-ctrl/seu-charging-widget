@@ -20,6 +20,7 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
     public static final String ACTION_REFRESH = "cn.edu.seu.chargingwidget.ACTION_REFRESH";
     public static final String ACTION_SWITCH_NEXT = "cn.edu.seu.chargingwidget.ACTION_SWITCH_NEXT";
     public static final String ACTION_TOGGLE_AUTO_LOCATION = "cn.edu.seu.chargingwidget.ACTION_TOGGLE_AUTO_LOCATION";
+    public static final String ACTION_RESET_HOSPITAL = "cn.edu.seu.chargingwidget.ACTION_RESET_HOSPITAL";
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -44,11 +45,14 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
 
         ChargingDataManager dataManager = ChargingDataManager.getInstance(context);
 
-        if (ACTION_SWITCH_NEXT.equals(action)) {
+        if (ACTION_RESET_HOSPITAL.equals(action)) {
+            dataManager.resetToHospital();
+            triggerUpdate(context);
+        } else if (ACTION_SWITCH_NEXT.equals(action)) {
             dataManager.switchToNextStation();
             triggerUpdate(context);
         } else if (ACTION_TOGGLE_AUTO_LOCATION.equals(action)) {
-            dataManager.resetToAutoLocation();
+            dataManager.snapToNearestOrReset();
             triggerUpdate(context);
         } else if (ACTION_REFRESH.equals(action) || Intent.ACTION_USER_PRESENT.equals(action)) {
             final PendingResult pendingResult = goAsync();
@@ -147,13 +151,24 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
             );
             views.setOnClickPendingIntent(R.id.btn_switch_next, switchPendingIntent);
 
-            // 自动定位 / 离我最近
-            Intent autoLocIntent = new Intent(context, ChargingWidgetProvider.class);
-            autoLocIntent.setAction(ACTION_TOGGLE_AUTO_LOCATION);
-            PendingIntent autoLocPendingIntent = PendingIntent.getBroadcast(
-                    context, 102, autoLocIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-            );
-            views.setOnClickPendingIntent(R.id.btn_auto_locate, autoLocPendingIntent);
+            // 中间操作按钮：非校医院状态下一键显示【⭐ 回校医院】；校医院状态下展示【📍 离我最近】
+            if (!ChargingStation.ID_HOSPITAL.equals(station.getId())) {
+                views.setTextViewText(R.id.btn_auto_locate, "⭐ 回校医院");
+                Intent resetHospitalIntent = new Intent(context, ChargingWidgetProvider.class);
+                resetHospitalIntent.setAction(ACTION_RESET_HOSPITAL);
+                PendingIntent resetHospitalPendingIntent = PendingIntent.getBroadcast(
+                        context, 104, resetHospitalIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                );
+                views.setOnClickPendingIntent(R.id.btn_auto_locate, resetHospitalPendingIntent);
+            } else {
+                views.setTextViewText(R.id.btn_auto_locate, context.getString(R.string.btn_auto_loc));
+                Intent autoLocIntent = new Intent(context, ChargingWidgetProvider.class);
+                autoLocIntent.setAction(ACTION_TOGGLE_AUTO_LOCATION);
+                PendingIntent autoLocPendingIntent = PendingIntent.getBroadcast(
+                        context, 102, autoLocIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                );
+                views.setOnClickPendingIntent(R.id.btn_auto_locate, autoLocPendingIntent);
+            }
 
             // 立即刷新
             Intent refreshIntent = new Intent(context, ChargingWidgetProvider.class);

@@ -254,7 +254,9 @@ function renderApp() {
 
   // 2. 过滤类别
   let filtered = [...campusFiltered];
-  if (currentCategory === 'dorm') {
+  if (currentCategory === 'hospital') {
+    filtered = filtered.filter(s => s.id === 'hospital');
+  } else if (currentCategory === 'dorm') {
     filtered = filtered.filter(s => s.zone === 'dorm');
   } else if (currentCategory === 'academic') {
     filtered = filtered.filter(s => s.zone === 'academic');

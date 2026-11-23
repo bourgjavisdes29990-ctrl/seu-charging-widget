@@ -128,10 +128,16 @@ public class MainActivity extends AppCompatActivity {
             View btnAutoLoc = widgetPreviewRoot.findViewById(R.id.btn_auto_locate);
             if (btnAutoLoc != null) {
                 btnAutoLoc.setOnClickListener(v -> {
-                    ChargingDataManager.getInstance(this).resetToAutoLocation();
+                    ChargingStation current = ChargingDataManager.getInstance(this).getCurrentDisplayStation().station;
+                    if (!ChargingStation.ID_HOSPITAL.equals(current.getId())) {
+                        ChargingDataManager.getInstance(this).resetToHospital();
+                        Toast.makeText(this, "已切回默认校医院充电桩", Toast.LENGTH_SHORT).show();
+                    } else {
+                        ChargingDataManager.getInstance(this).resetToAutoLocation();
+                        Toast.makeText(this, "已开启智能位置感知", Toast.LENGTH_SHORT).show();
+                    }
                     refreshPreviewAndList();
                     notifyWidgetUpdate();
-                    Toast.makeText(this, "已开启智能位置感知", Toast.LENGTH_SHORT).show();
                 });
             }
 
@@ -239,6 +245,15 @@ public class MainActivity extends AppCompatActivity {
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.CHINA);
                 tvTime.setText(sdf.format(new Date()) + " 更新");
             }
+
+            TextView tvAutoLoc = widgetPreviewRoot.findViewById(R.id.btn_auto_locate);
+            if (tvAutoLoc != null) {
+                if (!ChargingStation.ID_HOSPITAL.equals(currentStation.getId())) {
+                    tvAutoLoc.setText("⭐ 回校医院");
+                } else {
+                    tvAutoLoc.setText(getString(R.string.btn_auto_loc));
+                }
+            }
         }
 
         // 2. 刷新九龙湖校区电桩列表
@@ -253,6 +268,18 @@ public class MainActivity extends AppCompatActivity {
             if (bottomBar != null) {
                 bottomBar.setVisibility(View.GONE);
             }
+
+            // 点击列表内任意车棚卡片，直接设为小组件当前展示车棚
+            itemView.setOnClickListener(v -> {
+                dataManager.setStationManually(s.getId());
+                if (s.isFavoriteStation()) {
+                    Toast.makeText(this, "已锁定显示默认校医院", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "已临时切换至: " + s.getName(), Toast.LENGTH_SHORT).show();
+                }
+                refreshPreviewAndList();
+                notifyWidgetUpdate();
+            });
 
             TextView tvMode = itemView.findViewById(R.id.tv_mode_tag);
             TextView tvName = itemView.findViewById(R.id.tv_station_name);

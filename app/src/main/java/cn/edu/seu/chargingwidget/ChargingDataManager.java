@@ -206,11 +206,13 @@ public class ChargingDataManager {
     }
 
     /**
-     * 手动切换到当前校区内的下一个车棚，并设置 45 分钟手动覆盖期
+     * 手动切换到下一个车棚（基于当前实际展示车棚进行轮转）
+     * 轮转顺序：校医院 -> 东门北侧 -> 东门南侧 -> 北门东侧 -> 北门外卖柜旁 -> 北门西侧 -> 南门外东侧 -> 南门外西侧 -> 橘园北侧 -> 青教公寓 -> 校医院
+     * 当轮转回到校医院时，自动清除临时覆盖状态，恢复永久默认锁定校医院。
      */
     public ChargingStation switchToNextStation() {
-        SharedPreferences sp = appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        String currentId = sp.getString(KEY_CURRENT_STATION_ID, ChargingStation.ID_HOSPITAL);
+        StationDisplayResult currentResult = getCurrentDisplayStation();
+        String currentId = currentResult.station.getId();
 
         int currentIndex = 0;
         for (int i = 0; i < allStations.size(); i++) {
@@ -222,12 +224,33 @@ public class ChargingDataManager {
         int nextIndex = (currentIndex + 1) % allStations.size();
         ChargingStation next = allStations.get(nextIndex);
 
-        sp.edit()
-                .putString(KEY_CURRENT_STATION_ID, next.getId())
-                .putLong(KEY_MANUAL_OVERRIDE_TIME, System.currentTimeMillis())
-                .apply();
+        SharedPreferences sp = appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        if (ChargingStation.ID_HOSPITAL.equals(next.getId())) {
+            // 循环回到校医院：彻底解除临时查看状态，恢复常态默认锁定
+            sp.edit()
+                    .putString(KEY_CURRENT_STATION_ID, ChargingStation.ID_HOSPITAL)
+                    .putLong(KEY_MANUAL_OVERRIDE_TIME, 0L)
+                    .apply();
+        } else {
+            sp.edit()
+                    .putString(KEY_CURRENT_STATION_ID, next.getId())
+                    .putLong(KEY_MANUAL_OVERRIDE_TIME, System.currentTimeMillis())
+                    .apply();
+        }
 
         return next;
+    }
+
+    /**
+     * 一键重置回默认的校医院并解除临时锁定
+     */
+    public ChargingStation resetToHospital() {
+        SharedPreferences sp = appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        sp.edit()
+                .putString(KEY_CURRENT_STATION_ID, ChargingStation.ID_HOSPITAL)
+                .putLong(KEY_MANUAL_OVERRIDE_TIME, 0L)
+                .apply();
+        return getStationById(ChargingStation.ID_HOSPITAL);
     }
 
     /**
@@ -235,18 +258,16 @@ public class ChargingDataManager {
      */
     public ChargingStation snapToNearestOrReset() {
         SharedPreferences sp = appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        String currentId = sp.getString(KEY_CURRENT_STATION_ID, ChargingStation.ID_HOSPITAL);
+        StationDisplayResult currentResult = getCurrentDisplayStation();
+        String currentId = currentResult.station.getId();
+
         Location loc = getPassiveLocation();
         updateStationDistances(loc);
         if (loc != null) {
             ChargingStation nearest = findNearestStationInCampus(ChargingStation.CAMPUS_JIULONGHU);
             if (nearest != null) {
                 if (nearest.getId().equals(currentId) && !ChargingStation.ID_HOSPITAL.equals(currentId)) {
-                    sp.edit()
-                            .putString(KEY_CURRENT_STATION_ID, ChargingStation.ID_HOSPITAL)
-                            .putLong(KEY_MANUAL_OVERRIDE_TIME, 0L)
-                            .apply();
-                    return getStationById(ChargingStation.ID_HOSPITAL);
+                    return resetToHospital();
                 }
                 sp.edit()
                         .putString(KEY_CURRENT_STATION_ID, nearest.getId())
@@ -255,15 +276,23 @@ public class ChargingDataManager {
                 return nearest;
             }
         }
-        sp.edit()
-                .putString(KEY_CURRENT_STATION_ID, ChargingStation.ID_HOSPITAL)
-                .putLong(KEY_MANUAL_OVERRIDE_TIME, 0L)
-                .apply();
-        return getStationById(ChargingStation.ID_HOSPITAL);
+        return resetToHospital();
     }
 
     public void resetToAutoLocation() {
         snapToNearestOrReset();
+    }
+
+    public void setStationManually(String id) {
+        if (ChargingStation.ID_HOSPITAL.equals(id)) {
+            resetToHospital();
+        } else {
+            SharedPreferences sp = appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+            sp.edit()
+                    .putString(KEY_CURRENT_STATION_ID, id)
+                    .putLong(KEY_MANUAL_OVERRIDE_TIME, System.currentTimeMillis())
+                    .apply();
+        }
     }
 
     private void saveCurrentStationId(String id) {
