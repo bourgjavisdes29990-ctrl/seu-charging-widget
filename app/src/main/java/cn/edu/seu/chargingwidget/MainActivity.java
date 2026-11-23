@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
                 if (tvFree != null) tvFree.setText(String.valueOf(currentStation.getFavoritePilesFreeTotal()));
                 if (tvTotal != null) tvTotal.setText("个可用 / 1#&9#共20孔");
                 if (tvBreakdown != null) tvBreakdown.setText(currentStation.getPilesFocusSummary());
-                if (tvTrend != null) tvTrend.setText("校医院全场9台桩共90孔 · 实时余 " + currentStation.getFreeSockets() + " 可用");
+                if (tvTrend != null) tvTrend.setText(currentStation.getTrendPrediction());
             } else {
                 if (tvFree != null) tvFree.setText(String.valueOf(currentStation.getFreeSockets()));
                 if (tvTotal != null) tvTotal.setText("个可用 / 共 " + currentStation.getTotalSockets() + " 孔");
@@ -243,7 +243,8 @@ public class MainActivity extends AppCompatActivity {
 
             if (tvTime != null) {
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.CHINA);
-                tvTime.setText(sdf.format(new Date()) + " 更新");
+                long lastSync = dataManager.getLastSyncTimestamp();
+                tvTime.setText(lastSync > 0 ? sdf.format(new Date(lastSync)) + " 更新" : "尚未同步");
             }
 
             TextView tvAutoLoc = widgetPreviewRoot.findViewById(R.id.btn_auto_locate);
@@ -307,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
             if (s.isFavoriteStation()) {
                 if (tvFree != null) tvFree.setText(String.valueOf(s.getFavoritePilesFreeTotal()));
                 if (tvTotal != null) tvTotal.setText("个可用 / 1#&9#共20孔");
-                if (tvTrend != null) tvTrend.setText("校医院全场9台桩共90孔 · 实时余 " + s.getFreeSockets() + " 可用");
+                if (tvTrend != null) tvTrend.setText(s.getTrendPrediction());
             } else {
                 if (tvFree != null) tvFree.setText(String.valueOf(s.getFreeSockets()));
                 if (tvTotal != null) tvTotal.setText("个可用 / 共 " + s.getTotalSockets() + " 孔");

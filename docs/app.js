@@ -1,155 +1,54 @@
-// 东南大学九龙湖校区电动车充电桩 PWA (严格对齐 chargers.dpdns.org 官方实时数据)
-const STATIONS_DATA = [
-  // 东南大学九龙湖校区真实电桩列表（默认首选：校医院）
-  {
-    id: "hospital",
-    name: "校医院",
-    shortName: "校医院",
-    campus: "jiulonghu",
-    campusName: "九龙湖校区",
-    zone: "dorm",
-    lat: 31.8950,
-    lng: 118.8180,
-    total: 90,
-    baseFree: 26,
-    isFavorite: true,
-    pile1FreeCount: 5,
-    pile9FreeCount: 7,
-    pilesRemaining: "余量: 1# 5, 4# 1, 8# 3, 3# 2, 7# 1, 9# 7, 2# 5, 5# 2",
-    desc: "全场共9台桩(90孔)，常充关注1#与9#桩(各10孔，合计20孔)。"
-  },
-  {
-    id: "east_north",
-    name: "东门北侧",
-    shortName: "东门北侧",
-    campus: "jiulonghu",
-    campusName: "九龙湖校区",
-    zone: "academic",
-    lat: 31.8885,
-    lng: 118.8265,
-    total: 250,
-    baseFree: 167,
-    pilesRemaining: "余量: 66# 3, 68# 5, 69# 4, 70# 5, 71# 7, 72# 4, 73# 3, 74# 1, 76# 3...",
-    desc: "近东门北侧主干道，全校最大集中充电区，插座极其充足"
-  },
-  {
-    id: "east_south",
-    name: "东门南侧",
-    shortName: "东门南侧",
-    campus: "jiulonghu",
-    campusName: "九龙湖校区",
-    zone: "academic",
-    lat: 31.8860,
-    lng: 118.8260,
-    total: 10,
-    baseFree: 1,
-    pilesRemaining: "余量: 37# 1",
-    desc: "东门南侧单台桩(37#)，余位紧张建议前往东门北侧"
-  },
-  {
-    id: "north_east",
-    name: "北门东侧",
-    shortName: "北门东侧",
-    campus: "jiulonghu",
-    campusName: "九龙湖校区",
-    zone: "academic",
-    lat: 31.8965,
-    lng: 118.8220,
-    total: 100,
-    baseFree: 34,
-    pilesRemaining: "余量: 10# 2, 11# 2, 12# 4, 13# 3, 20# 4, 21# 6, 22# 1, 52# 1, 54# 1...",
-    desc: "北门东侧车棚，多台桩位余量尚可"
-  },
-  {
-    id: "north_delivery",
-    name: "北门外卖柜旁",
-    shortName: "外卖柜旁",
-    campus: "jiulonghu",
-    campusName: "九龙湖校区",
-    zone: "academic",
-    lat: 31.8968,
-    lng: 118.8200,
-    total: 10,
-    baseFree: 2,
-    pilesRemaining: "余量: 105# 2",
-    desc: "北门外卖柜单台桩(105#)，余位较少"
-  },
-  {
-    id: "north_west",
-    name: "北门西侧",
-    shortName: "北门西侧",
-    campus: "jiulonghu",
-    campusName: "九龙湖校区",
-    zone: "academic",
-    lat: 31.8960,
-    lng: 118.8160,
-    total: 40,
-    baseFree: 9,
-    pilesRemaining: "余量: 14# 4, 16# 1, 17# 2, 19# 2",
-    desc: "北门西侧车棚，14# 空闲最多"
-  },
-  {
-    id: "south_east",
-    name: "南门外东侧",
-    shortName: "南门外东",
-    campus: "jiulonghu",
-    campusName: "九龙湖校区",
-    zone: "academic",
-    lat: 31.8820,
-    lng: 118.8230,
-    total: 20,
-    baseFree: 15,
-    pilesRemaining: "余量: 43# 9, 44# 6",
-    desc: "南门外东侧(43#、44#桩)，余量充裕"
-  },
-  {
-    id: "south_west",
-    name: "南门外西侧",
-    shortName: "南门外西",
-    campus: "jiulonghu",
-    campusName: "九龙湖校区",
-    zone: "academic",
-    lat: 31.8820,
-    lng: 118.8170,
-    total: 30,
-    baseFree: 15,
-    pilesRemaining: "余量: 40# 5, 41# 5, 42# 5",
-    desc: "南门外西侧(40#、41#、42#桩)，各余5孔"
-  },
-  {
-    id: "juyuan_north",
-    name: "橘园北侧",
-    shortName: "橘园北侧",
-    campus: "jiulonghu",
-    campusName: "九龙湖校区",
-    zone: "dorm",
-    lat: 31.8865,
-    lng: 118.8140,
-    total: 90,
-    baseFree: 15,
-    pilesRemaining: "余量: 24# 1, 26# 1, 27# 2, 29# 2, 30# 2, 32# 1, 33# 3, 34# 2, 36# 1",
-    desc: "橘园宿舍区北侧车棚，夜间充电集中"
-  },
-  {
-    id: "qingjiao",
-    name: "青教公寓",
-    shortName: "青教公寓",
-    campus: "jiulonghu",
-    campusName: "九龙湖校区",
-    zone: "dorm",
-    lat: 31.8940,
-    lng: 118.8240,
-    total: 80,
-    baseFree: 9,
-    pilesRemaining: "余量: 56# 1, 57# 1, 58# 1, 60# 1, 61# 1, 62# 1, 63# 2, 64# 1",
-    desc: "青年教师公寓车棚，63#桩尚余2孔"
-  }
+// 东南大学九龙湖校区电动车充电桩 PWA
+// 数据来源：Where-Are-Available-Chargers 官方 JSON API
+//   https://chargers.dpdns.org/api/get_status/jiulonghu
+// 联网时拉取实时数据；离线/失败时回退到下方 STATIC_FALLBACK 快照。
+
+const STATUS_API = 'https://chargers.dpdns.org/api/get_status/jiulonghu';
+
+// 静态兜底快照（坐标/总数为官方值，空闲数仅为最后已知值，联网后会被覆盖）
+const STATIC_FALLBACK = [
+  { id: "hospital", name: "校医院", shortName: "校医院", campus: "jiulonghu",
+    zone: "dorm", lat: 31.892883, lng: 118.82438, total: 90, isFavorite: true,
+    pile1FreeCount: 3, pile9FreeCount: 8, pile1FreePorts: "2, 3, 6", pile9FreePorts: "2, 3, 4, 5, 6, 7, 8, 9",
+    desc: "全场共9台桩(90孔)，常充关注1#与9#桩(各10孔，合计20孔)。" },
+  { id: "east_north", name: "东门北侧", shortName: "东门北侧", campus: "jiulonghu",
+    zone: "academic", lat: 31.887383, lng: 118.82984, total: 320, isFavorite: false, desc: "近东门北侧主干道，全校最大集中充电区" },
+  { id: "east_south", name: "东门南侧", shortName: "东门南侧", campus: "jiulonghu",
+    zone: "academic", lat: 31.886993, lng: 118.830055, total: 20, isFavorite: false, desc: "东门南侧车棚(37#、38#)" },
+  { id: "north_east", name: "北门东侧", shortName: "北门东侧", campus: "jiulonghu",
+    zone: "academic", lat: 31.893595, lng: 118.8246, total: 180, isFavorite: false, desc: "北门东侧车棚，多台桩位" },
+  { id: "north_delivery", name: "北门外卖柜旁", shortName: "外卖柜旁", campus: "jiulonghu",
+    zone: "academic", lat: 31.887253, lng: 118.82091, total: 20, isFavorite: false, desc: "北门外卖柜单台桩(104#、105#)" },
+  { id: "north_west", name: "北门西侧", shortName: "北门西侧", campus: "jiulonghu",
+    zone: "academic", lat: 31.893429, lng: 118.82249, total: 50, isFavorite: false, desc: "北门西侧车棚" },
+  { id: "south_east", name: "南门外东侧", shortName: "南门外东", campus: "jiulonghu",
+    zone: "academic", lat: 31.881042, lng: 118.819916, total: 20, isFavorite: false, desc: "南门外东侧(43#、44#桩)" },
+  { id: "south_west", name: "南门外西侧", shortName: "南门外西", campus: "jiulonghu",
+    zone: "academic", lat: 31.880817, lng: 118.82094, total: 30, isFavorite: false, desc: "南门外西侧(40#、41#、42#桩)" },
+  { id: "juyuan_north", name: "橘园北侧", shortName: "橘园北侧", campus: "jiulonghu",
+    zone: "dorm", lat: 31.885979, lng: 118.81205, total: 130, isFavorite: false, desc: "橘园宿舍区北侧车棚，夜间充电集中" },
+  { id: "qingjiao", name: "青教公寓", shortName: "青教公寓", campus: "jiulonghu",
+    zone: "dorm", lat: 31.893145, lng: 118.8271, total: 100, isFavorite: false, desc: "青年教师公寓车棚" },
 ];
 
+let liveStations = STATIC_FALLBACK.map(cloneFallback);
 let userLocation = null;
-let currentCampus = 'all';
 let currentCategory = 'all';
+let lastSyncTime = null;
 let deferredInstallPrompt = null;
+
+function cloneFallback(s) {
+  return {
+    ...s,
+    free: 0,
+    pile1FreeCount: s.pile1FreeCount || 0,
+    pile9FreeCount: s.pile9FreeCount || 0,
+    pile1FreePorts: s.pile1FreePorts || "",
+    pile9FreePorts: s.pile9FreePorts || "",
+    pilesRemaining: "",
+    prediction: s.desc || "",
+  };
+}
 
 // 球面经纬度距离计算 (米)
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -158,93 +57,86 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   const φ2 = (lat2 * Math.PI) / 180;
   const Δφ = ((lat2 - lat1) * Math.PI) / 180;
   const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-
   const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+            Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
 
-// 拟真时间动态算法（严格对齐 chargers.dpdns.org 官方数据基准）
-function computeLiveStationStatus(station) {
-  const now = new Date();
-  const minute = now.getMinutes();
-  const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-
-  let free;
-  let prediction;
-  let pile1FreeCount = 5;
-  let pile9FreeCount = 7;
-  let pilesRemaining = station.pilesRemaining || "";
-
-  if (station.id === 'hospital') {
-    const p1Jitter = ((Math.floor(minute / 11) + dayOfYear) % 3) - 1;
-    const p9Jitter = ((Math.floor(minute / 13) + dayOfYear * 2) % 3) - 1;
-    pile1FreeCount = Math.max(3, Math.min(8, 5 + p1Jitter));
-    pile9FreeCount = Math.max(4, Math.min(9, 7 + p9Jitter));
-
-    const totalJitter = p1Jitter + p9Jitter + ((Math.floor(minute / 7)) % 3 - 1);
-    free = Math.max(20, Math.min(35, 26 + totalJitter));
-    pilesRemaining = `余量: 1# ${pile1FreeCount}, 4# 1, 8# 3, 3# 2, 7# 1, 9# ${pile9FreeCount}, 2# 5, 5# 2`;
-    prediction = `校医院全场9台桩共90孔 · 实时余 ${free} 可用`;
-  } else {
-    let jitter = ((Math.floor(minute / 8) + station.id.split('').reduce((a,c)=>a+c.charCodeAt(0),0) + dayOfYear) % 5) - 2;
-    if (station.total <= 20) {
-      jitter = Math.max(-1, Math.min(1, jitter));
-    }
-    free = Math.max(0, Math.min(station.total, station.baseFree + jitter));
-    prediction = station.desc;
+// 从官方 JSON 响应映射为本地站点列表
+function applyApiData(api) {
+  if (!api || api.code !== 200 || !api.status || !Array.isArray(api.status.stations)) {
+    return false;
   }
+  const byName = new Map();
+  for (const st of api.status.stations) {
+    byName.set(st.name, st);
+  }
+  let matched = 0;
+  liveStations = STATIC_FALLBACK.map(fb => {
+    const s = cloneFallback(fb);
+    const st = byName.get(fb.name);
+    if (!st) return s;
+    matched++;
+    s.total = st.total_count;
+    s.free = st.available_count;
+    s.lat = st.lat || fb.lat;
+    s.lng = st.lng || fb.lng;
+    if (st.chargers && Array.isArray(st.chargers)) {
+      const parts = [];
+      for (const ch of st.chargers) {
+        parts.push(`${ch.name}:${ch.available_count}`);
+        if (fb.isFavorite) {
+          if (ch.name === '1#') {
+            s.pile1FreeCount = ch.available_count;
+            s.pile1FreePorts = freePortsFromSockets(ch.sockets);
+          } else if (ch.name === '9#') {
+            s.pile9FreeCount = ch.available_count;
+            s.pile9FreePorts = freePortsFromSockets(ch.sockets);
+          }
+        }
+      }
+      s.pilesRemaining = parts.length ? `余量: ${parts.join(', ')}` : '';
+    }
+    if (fb.isFavorite) {
+      s.prediction = `校医院全场${st.chargers ? st.chargers.length : 9}台桩共${s.total}孔 · 实时余 ${s.free} 可用`;
+    } else {
+      s.prediction = s.total > 0 && s.free > s.total / 3 ? '插座充足，随到随充' : '余量紧张，建议留意空孔';
+    }
+    return s;
+  });
+  if (api.last_update_time) lastSyncTime = new Date(api.last_update_time);
+  return matched > 0;
+}
 
-  const ratio = free / station.total;
+function freePortsFromSockets(sockets) {
+  if (!Array.isArray(sockets)) return '';
+  return sockets.map((v, i) => (v === 1 ? i + 1 : null)).filter(Boolean).join(', ');
+}
+
+function computeStatus(station) {
+  const ratio = station.total > 0 ? station.free / station.total : 0;
   let status = 'ample';
   let statusText = '● 充裕';
   let badgeClass = 'green';
-
   if (ratio < 0.10) {
-    status = 'full';
-    statusText = '● 满位';
-    badgeClass = 'red';
+    status = 'full'; statusText = '● 满位'; badgeClass = 'red';
   } else if (ratio < 0.35) {
-    status = 'moderate';
-    statusText = '● 紧张';
-    badgeClass = 'yellow';
+    status = 'moderate'; statusText = '● 紧张'; badgeClass = 'yellow';
   }
-
   let dist = null;
   if (userLocation) {
     dist = calculateDistance(userLocation.lat, userLocation.lng, station.lat, station.lng);
   }
-
-  return {
-    ...station,
-    free,
-    status,
-    statusText,
-    badgeClass,
-    prediction,
-    pilesRemaining,
-    distanceMeters: dist,
-    pile1FreeCount,
-    pile9FreeCount,
-    favoritePilesFreeTotal: pile1FreeCount + pile9FreeCount
-  };
+  return { ...station, status, statusText, badgeClass, distanceMeters: dist,
+    favoritePilesFreeTotal: (station.pile1FreeCount || 0) + (station.pile9FreeCount || 0) };
 }
 
 // 渲染主列表与看板
 function renderApp() {
-  const liveStations = STATIONS_DATA.map(computeLiveStationStatus);
-
-  // 1. 过滤校区
-  let campusFiltered = liveStations;
-  if (currentCampus !== 'all') {
-    campusFiltered = campusFiltered.filter(s => s.campus === currentCampus);
-  }
-
-  // 统计概览
-  const totalSlots = campusFiltered.reduce((sum, s) => sum + s.total, 0);
-  const totalFree = campusFiltered.reduce((sum, s) => sum + s.free, 0);
+  const live = liveStations.map(computeStatus);
+  const totalSlots = live.reduce((sum, s) => sum + s.total, 0);
+  const totalFree = live.reduce((sum, s) => sum + s.free, 0);
   const freePercent = totalSlots > 0 ? Math.round((totalFree / totalSlots) * 100) : 0;
 
   document.getElementById('total-free-count').innerText = totalFree;
@@ -252,8 +144,14 @@ function renderApp() {
   document.getElementById('total-free-percent').innerText = `${freePercent}%`;
   document.getElementById('total-progress-bar').style.width = `${freePercent}%`;
 
-  // 2. 过滤类别
-  let filtered = [...campusFiltered];
+  const syncTag = document.querySelector('.hero-header span[style]');
+  if (syncTag && lastSyncTime) {
+    const hh = String(lastSyncTime.getHours()).padStart(2, '0');
+    const mm = String(lastSyncTime.getMinutes()).padStart(2, '0');
+    syncTag.textContent = `${hh}:${mm} 更新`;
+  }
+
+  let filtered = [...live];
   if (currentCategory === 'hospital') {
     filtered = filtered.filter(s => s.id === 'hospital');
   } else if (currentCategory === 'dorm') {
@@ -262,10 +160,8 @@ function renderApp() {
     filtered = filtered.filter(s => s.zone === 'academic');
   } else if (currentCategory === 'ample') {
     filtered = filtered.filter(s => s.status === 'ample');
-  } else if (currentCategory === 'nearest') {
-    if (userLocation) {
-      filtered.sort((a, b) => (a.distanceMeters || 999999) - (b.distanceMeters || 999999));
-    }
+  } else if (currentCategory === 'nearest' && userLocation) {
+    filtered.sort((a, b) => (a.distanceMeters || 999999) - (b.distanceMeters || 999999));
   }
 
   const listContainer = document.getElementById('stations-container');
@@ -289,7 +185,6 @@ function renderApp() {
     const stationTitle = isHospital ? `⭐ ${s.name}` : s.name;
     const freeNum = isHospital ? s.favoritePilesFreeTotal : s.free;
     const totalDesc = isHospital ? `个可用 / 1#&9#共20孔` : `个可用 / 共 ${s.total} 孔`;
-    const predText = isHospital ? `校医院全场9台桩共90孔 · 实时余 ${s.free} 可用` : s.prediction;
 
     card.innerHTML = `
       <div class="card-top">
@@ -305,7 +200,7 @@ function renderApp() {
       </div>
       <div class="card-sub-info">
         <span class="card-breakdown">${breakdownHtml}</span>
-        <span class="card-prediction">${predText}</span>
+        <span class="card-prediction">${s.prediction}</span>
       </div>
     `;
     listContainer.appendChild(card);
@@ -317,11 +212,11 @@ function openStationModal(station) {
   document.getElementById('modal-title').innerText = station.id === 'hospital' ? `⭐ ${station.name}` : station.name;
   document.getElementById('modal-badge').innerText = station.statusText;
   document.getElementById('modal-badge').className = `badge ${station.badgeClass}`;
-  
+
   if (station.id === 'hospital') {
     document.getElementById('modal-free-count').innerText = station.favoritePilesFreeTotal;
     document.getElementById('modal-total-count').innerText = `个可用 / 1#&9#共20孔`;
-    document.getElementById('modal-desc').innerHTML = `${station.desc}<br><br><strong style="color:#38bdf8;">⭐ 重点桩位孔位状态：</strong><br>1# 桩：${station.pile1FreeCount}/10 空闲（孔 1, 2, 5, 8 可用）<br>9# 桩：${station.pile9FreeCount}/10 空闲（孔 2, 3, 4, 5, 9, 10 可用）<br><br><span style="color:#94a3b8;font-size:0.8rem;">校医院全场共 9 台桩，90 个插孔，全场空闲 ${station.free} 孔</span>`;
+    document.getElementById('modal-desc').innerHTML = `${station.desc}<br><br><strong style="color:#38bdf8;">⭐ 重点桩位孔位状态：</strong><br>1# 桩：${station.pile1FreeCount}/10 空闲${station.pile1FreePorts ? `（孔 ${station.pile1FreePorts} 可用）` : ''}<br>9# 桩：${station.pile9FreeCount}/10 空闲${station.pile9FreePorts ? `（孔 ${station.pile9FreePorts} 可用）` : ''}<br><br><span style="color:#94a3b8;font-size:0.8rem;">校医院全场共 9 台桩，90 个插孔，全场空闲 ${station.free} 孔</span>`;
     document.getElementById('modal-fast').innerText = `各桩孔位：${station.pilesRemaining}`;
     document.getElementById('modal-slow').innerText = `规格：标准 220V 智能两轮电动车充电插座`;
   } else {
@@ -346,6 +241,22 @@ function closeStationModal() {
   document.getElementById('station-modal').classList.remove('active');
 }
 
+// 拉取真实数据
+async function fetchStatus() {
+  try {
+    const res = await fetch(STATUS_API, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (applyApiData(data)) {
+      renderApp();
+    }
+  } catch (err) {
+    console.warn('拉取实时数据失败，使用快照:', err.message);
+    // 保持快照数据并渲染
+    renderApp();
+  }
+}
+
 // 自动定位
 function requestUserLocation() {
   const locateBtn = document.getElementById('btn-locate');
@@ -359,17 +270,13 @@ function requestUserLocation() {
 
   navigator.geolocation.getCurrentPosition(
     pos => {
-      userLocation = {
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude
-      };
+      userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
       locateBtn.classList.remove('loading');
       renderApp();
     },
     err => {
       console.warn('获取位置受阻:', err.message);
       locateBtn.classList.remove('loading');
-      // 默认给九龙湖校区中心定位
       userLocation = { lat: 31.8872, lng: 118.8190 };
       renderApp();
     },
@@ -379,7 +286,6 @@ function requestUserLocation() {
 
 // 注册事件
 document.addEventListener('DOMContentLoaded', () => {
-  // 类别标签切换
   document.querySelectorAll('.filter-tab').forEach(tab => {
     tab.addEventListener('click', e => {
       document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
@@ -393,24 +299,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 定位与刷新按钮
   document.getElementById('btn-locate').addEventListener('click', requestUserLocation);
   document.getElementById('btn-refresh').addEventListener('click', () => {
     const rfBtn = document.getElementById('btn-refresh');
     rfBtn.classList.add('loading');
-    setTimeout(() => {
+    fetchStatus().finally(() => {
       rfBtn.classList.remove('loading');
-      renderApp();
-    }, 400);
+    });
   });
 
-  // 点击弹窗背景遮罩关闭
   const modalOverlay = document.getElementById('station-modal');
   modalOverlay.addEventListener('click', e => {
     if (e.target === modalOverlay) closeStationModal();
   });
 
-  // PWA 安装提示
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     deferredInstallPrompt = e;
@@ -432,9 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 默认渲染
   renderApp();
-
-  // 60秒定时自动被动刷新
-  setInterval(renderApp, 60000);
+  fetchStatus();
+  setInterval(fetchStatus, 60000);
 });

@@ -84,7 +84,10 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
         ChargingStation station = result.station;
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.CHINA);
-        String updateTimeStr = sdf.format(new Date()) + " 更新";
+        long lastSync = dataManager.getLastSyncTimestamp();
+        String updateTimeStr = lastSync > 0
+                ? sdf.format(new Date(lastSync)) + " 更新"
+                : "尚未同步";
 
         for (int appWidgetId : appWidgetIds) {
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_charging_4x2);
@@ -131,7 +134,7 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
                 views.setTextViewText(R.id.tv_free_count, String.valueOf(station.getFavoritePilesFreeTotal()));
                 views.setTextViewText(R.id.tv_total_suffix, "个可用 / 1#&9#共20孔");
                 views.setTextViewText(R.id.tv_breakdown, station.getPilesFocusSummary());
-                views.setTextViewText(R.id.tv_trend_prediction, "校医院全场9台桩共90孔 · 实时余 " + station.getFreeSockets() + " 可用");
+                views.setTextViewText(R.id.tv_trend_prediction, station.getTrendPrediction());
             } else {
                 views.setTextViewText(R.id.tv_free_count, String.valueOf(station.getFreeSockets()));
                 views.setTextViewText(R.id.tv_total_suffix, "个可用 / 共 " + station.getTotalSockets() + " 孔");

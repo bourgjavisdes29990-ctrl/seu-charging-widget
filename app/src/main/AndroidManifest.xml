@@ -38,6 +38,7 @@
                 <action android:name="cn.edu.seu.chargingwidget.ACTION_REFRESH" />
                 <action android:name="cn.edu.seu.chargingwidget.ACTION_SWITCH_NEXT" />
                 <action android:name="cn.edu.seu.chargingwidget.ACTION_TOGGLE_AUTO_LOCATION" />
+                <action android:name="cn.edu.seu.chargingwidget.ACTION_RESET_HOSPITAL" />
             </intent-filter>
 
             <meta-data

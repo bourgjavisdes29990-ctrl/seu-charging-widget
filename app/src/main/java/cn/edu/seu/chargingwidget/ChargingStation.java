@@ -31,10 +31,10 @@ public class ChargingStation {
 
     // 重点关注桩位（校医院 1# 桩与 9# 桩，各 10 个插孔，合计 20 孔）
     private boolean isFavoriteStation = false;
-    private int pile1FreeCount = 5;
-    private int pile9FreeCount = 7;
-    private String pile1FreePorts = "1, 2, 5, 8";
-    private String pile9FreePorts = "2, 3, 4, 5, 9, 10";
+    private int pile1FreeCount = 0;
+    private int pile9FreeCount = 0;
+    private String pile1FreePorts = "";
+    private String pile9FreePorts = "";
     private String pilesRemainingSummary = "";
 
     public ChargingStation(String id, String name, String shortName,
@@ -56,8 +56,6 @@ public class ChargingStation {
         this.trendPrediction = "";
         if (ID_HOSPITAL.equals(id)) {
             this.isFavoriteStation = true;
-            this.pile1FreeCount = 5;
-            this.pile9FreeCount = 7;
         }
     }
 
@@ -79,8 +77,6 @@ public class ChargingStation {
         this.trendPrediction = "";
         if (ID_HOSPITAL.equals(id)) {
             this.isFavoriteStation = true;
-            this.pile1FreeCount = 5;
-            this.pile9FreeCount = 7;
         }
     }
 
