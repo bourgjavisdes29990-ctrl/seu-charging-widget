@@ -24,6 +24,16 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         updateAllWidgets(context, appWidgetManager, appWidgetIds);
+        final PendingResult pendingResult = goAsync();
+        ChargingDataManager.getInstance(context).fetchRemoteDataAsync((success, message) -> {
+            try {
+                if (success) {
+                    updateAllWidgets(context, appWidgetManager, appWidgetIds);
+                }
+            } finally {
+                pendingResult.finish();
+            }
+        });
     }
 
     @Override
@@ -41,12 +51,15 @@ public class ChargingWidgetProvider extends AppWidgetProvider {
             dataManager.resetToAutoLocation();
             triggerUpdate(context);
         } else if (ACTION_REFRESH.equals(action) || Intent.ACTION_USER_PRESENT.equals(action)) {
-            // 亮屏解锁或手动点击刷新，被动重算并更新
+            final PendingResult pendingResult = goAsync();
             triggerUpdate(context);
-            // 尝试在网络空闲时平滑拉取 chargers.dpdns.org
             dataManager.fetchRemoteDataAsync((success, message) -> {
-                if (success) {
-                    triggerUpdate(context);
+                try {
+                    if (success) {
+                        triggerUpdate(context);
+                    }
+                } finally {
+                    pendingResult.finish();
                 }
             });
         }

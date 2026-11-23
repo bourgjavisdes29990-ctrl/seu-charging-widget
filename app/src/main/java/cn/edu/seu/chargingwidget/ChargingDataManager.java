@@ -65,6 +65,8 @@ public class ChargingDataManager {
     private ChargingDataManager(Context context) {
         this.appContext = context;
         initStations();
+        restoreCachedStations();
+        fetchRemoteDataAsync(null);
     }
 
     private void initStations() {
@@ -394,13 +396,18 @@ public class ChargingDataManager {
                         s.setPilesRemainingSummary("余量: " + piles);
 
                         if (s.isFavoriteStation()) {
-                            Matcher m1 = Pattern.compile("#1:\\s*(\\d+)").matcher(piles);
+                            Matcher m1 = Pattern.compile("(?:#1|1#)[:：]?\\s*(\\d+)").matcher(piles);
                             if (m1.find()) {
                                 s.setPile1FreeCount(Integer.parseInt(m1.group(1).trim()));
+                            } else if (piles.contains("#") || piles.contains("桩")) {
+                                s.setPile1FreeCount(0);
                             }
-                            Matcher m9 = Pattern.compile("#9:\\s*(\\d+)").matcher(piles);
+
+                            Matcher m9 = Pattern.compile("(?:#9|9#)[:：]?\\s*(\\d+)").matcher(piles);
                             if (m9.find()) {
                                 s.setPile9FreeCount(Integer.parseInt(m9.group(1).trim()));
+                            } else if (piles.contains("#") || piles.contains("桩")) {
+                                s.setPile9FreeCount(0);
                             }
                             s.setTrendPrediction("校医院全场9台桩共" + total + "孔 · 实时余 " + free + " 可用");
                         } else {
@@ -410,7 +417,47 @@ public class ChargingDataManager {
                     }
                 }
             }
+            persistStationData();
         } catch (Exception ignored) {
+        }
+    }
+
+    private void persistStationData() {
+        SharedPreferences sp = appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        for (ChargingStation s : allStations) {
+            String prefix = "station_" + s.getId() + "_";
+            editor.putInt(prefix + "total", s.getTotalSockets());
+            editor.putInt(prefix + "free", s.getFreeSockets());
+            editor.putInt(prefix + "p1", s.getPile1FreeCount());
+            editor.putInt(prefix + "p9", s.getPile9FreeCount());
+            editor.putString(prefix + "piles", s.getPilesRemainingSummary());
+            editor.putString(prefix + "pred", s.getTrendPrediction());
+        }
+        editor.putLong(KEY_LAST_SYNC_TIME, System.currentTimeMillis());
+        editor.apply();
+    }
+
+    private void restoreCachedStations() {
+        SharedPreferences sp = appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        long lastSync = sp.getLong(KEY_LAST_SYNC_TIME, 0L);
+        if (lastSync <= 0) return;
+
+        for (ChargingStation s : allStations) {
+            String prefix = "station_" + s.getId() + "_";
+            int total = sp.getInt(prefix + "total", -1);
+            int free = sp.getInt(prefix + "free", -1);
+            if (total > 0 && free >= 0) {
+                s.setTotalSockets(total);
+                s.setFreeSockets(free);
+                s.setInUseSockets(Math.max(0, total - free));
+                s.setPile1FreeCount(sp.getInt(prefix + "p1", s.getPile1FreeCount()));
+                s.setPile9FreeCount(sp.getInt(prefix + "p9", s.getPile9FreeCount()));
+                String piles = sp.getString(prefix + "piles", "");
+                if (!piles.isEmpty()) s.setPilesRemainingSummary(piles);
+                String pred = sp.getString(prefix + "pred", "");
+                if (!pred.isEmpty()) s.setTrendPrediction(pred);
+            }
         }
     }
 
@@ -420,9 +467,18 @@ public class ChargingDataManager {
     }
 
     /**
-     * 基于东南大学九龙湖校区官方实时基准（chargers.dpdns.org）的高拟真动态平滑微调算法
+     * 基于东南大学九龙湖校区官方实时基准（chargers.dpdns.org）的高拟真动态平滑微调算法（仅在完全断网且无缓存时作为保底防线）
      */
     private void updateSimulationData() {
+        SharedPreferences sp = appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        long lastSync = sp.getLong(KEY_LAST_SYNC_TIME, 0L);
+        long now = System.currentTimeMillis();
+
+        // 核心保护：若最近 6 小时内有真实同步的中网充数据，绝对严禁使用任何模拟算法覆写真实数据！
+        if (lastSync > 0 && (now - lastSync) < 6 * 60 * 60 * 1000L) {
+            return;
+        }
+
         Calendar cal = Calendar.getInstance();
         int minute = cal.get(Calendar.MINUTE);
         int daySeed = cal.get(Calendar.DAY_OF_YEAR);

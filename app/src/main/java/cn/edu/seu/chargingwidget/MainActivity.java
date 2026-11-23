@@ -41,6 +41,15 @@ public class MainActivity extends AppCompatActivity {
         initViews();
         checkLocationPermissionState();
         refreshPreviewAndList();
+
+        // 启动时在后台立即拉取中网充最新数据
+        ChargingDataManager.getInstance(this).fetchRemoteDataAsync((success, message) -> runOnUiThread(() -> {
+            if (success) {
+                if (tvSyncStatus != null) tvSyncStatus.setText(message);
+                refreshPreviewAndList();
+                notifyWidgetUpdate();
+            }
+        }));
     }
 
     @Override
@@ -48,6 +57,15 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         checkLocationPermissionState();
         refreshPreviewAndList();
+
+        // 回到前台时立即同步最新中网充数据
+        ChargingDataManager.getInstance(this).fetchRemoteDataAsync((success, message) -> runOnUiThread(() -> {
+            if (success) {
+                if (tvSyncStatus != null) tvSyncStatus.setText(message);
+                refreshPreviewAndList();
+                notifyWidgetUpdate();
+            }
+        }));
     }
 
     private void initViews() {
